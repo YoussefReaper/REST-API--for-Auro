@@ -5,10 +5,12 @@ const authenticateToken = require('../middleware/authMiddleware');
 
 /**
  * @swagger
- * /user/profile:
+ * /api/user/profile:
  *   get:
  *     summary: Get user profile
  *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: User profile retrieved
@@ -21,10 +23,12 @@ router.get('/profile', authenticateToken, userController.getProfile);
 
 /**
  * @swagger
- * /user/customization:
+ * /api/user/customization:
  *   patch:
  *     summary: Update user customization settings
  *     tags: [User]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:

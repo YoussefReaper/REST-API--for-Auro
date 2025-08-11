@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auro API Server</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .card h2 {
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card p {
+            color: #718096;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .status-online {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status-offline {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .config-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .config-form {
+            display: grid;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .form-group input {
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .api-endpoints {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .endpoint {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            background: #f7fafc;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .endpoint-method {
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .method-get { background: #c6f6d5; color: #22543d; }
+        .method-post { background: #bee3f8; color: #2a4365; }
+        .method-put { background: #fbb6ce; color: #742a2a; }
+        .method-delete { background: #fed7d7; color: #742a2a; }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+
+        .icon {
+            font-size: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🚀 Auro API Server</h1>
+            <p>Personal Productivity REST API Backend</p>
+        </div>
+
+        <!-- Status and Quick Links -->
+        <div class="cards-container">
+            <div class="card">
+                <h2>
+                    <span class="icon">📊</span>
+                    Server Status
+                </h2>
+                <div id="server-status" class="status-indicator status-online">
+                    ✅ Server Online
+                </div>
+                <p>The Auro API server is running and ready to handle requests for the productivity application.</p>
+                <button class="btn" onclick="checkServerHealth()">Check Health</button>
+            </div>
+
+            <div class="card">
+                <h2>
+                    <span class="icon">📚</span>
+                    API Documentation
+                </h2>
+                <p>Explore the interactive API documentation with Swagger UI. Test endpoints, view schemas, and understand the API structure.</p>
+                <a href="/api-docs" class="btn" target="_blank">Open API Docs</a>
+            </div>
+
+            <div class="card">
+                <h2>
+                    <span class="icon">🔧</span>
+                    Quick Actions
+                </h2>
+                <p>Access common development tools and server information for the Auro project.</p>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <a href="/health" class="btn btn-secondary" target="_blank">Health Check</a>
+                    <button class="btn btn-warning" onclick="showConfig()">Configuration</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configuration Section -->
+        <div class="config-section" id="config-section" style="display: none;">
+            <h2>⚙️ Server Configuration</h2>
+            <p>Update your server configuration settings below. Changes require a server restart.</p>
+            
+            <div class="config-form">
+                <div class="form-group">
+                    <label for="mongo-uri">MongoDB Connection URI</label>
+                    <input type="text" id="mongo-uri" placeholder="mongodb+srv://username:password@cluster.mongodb.net/database">
+                </div>
+                
+                <div class="form-group">
+                    <label for="jwt-key">JWT Secret Key</label>
+                    <input type="password" id="jwt-key" placeholder="Enter your JWT secret key">
+                </div>
+                
+                <div class="form-group">
+                    <label for="server-port">Server Port</label>
+                    <input type="number" id="server-port" value="3000" placeholder="3000">
+                </div>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn" onclick="saveConfig()">Save Configuration</button>
+                    <button class="btn btn-secondary" onclick="hideConfig()">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Endpoints Overview -->
+        <div class="api-endpoints">
+            <h2>🛣️ API Endpoints Overview</h2>
+            <p>Key endpoints available in the Auro API:</p>
+            
+            <div class="endpoint">
+                <span class="endpoint-method method-post">POST</span>
+                <span>/api/auth/register</span>
+                <span>User registration</span>
+            </div>
+            
+            <div class="endpoint">
+                <span class="endpoint-method method-post">POST</span>
+                <span>/api/auth/login</span>
+                <span>User authentication</span>
+            </div>
+            
+            <div class="endpoint">
+                <span class="endpoint-method method-get">GET</span>
+                <span>/api/tasks</span>
+                <span>Retrieve user tasks</span>
+            </div>
+            
+            <div class="endpoint">
+                <span class="endpoint-method method-post">POST</span>
+                <span>/api/tasks</span>
+                <span>Create new task</span>
+            </div>
+            
+            <div class="endpoint">
+                <span class="endpoint-method method-get">GET</span>
+                <span>/api/journals</span>
+                <span>Get journal entries</span>
+            </div>
+            
+            <div class="endpoint">
+                <span class="endpoint-method method-get">GET</span>
+                <span>/api/habits</span>
+                <span>View user habits</span>
+            </div>
+            
+            <div class="endpoint">
+                <span class="endpoint-method method-get">GET</span>
+                <span>/api/plans</span>
+                <span>Retrieve user plans</span>
+            </div>
+            
+            <div class="endpoint">
+                <span class="endpoint-method method-get">GET</span>
+                <span>/api/user/profile</span>
+                <span>Get user profile</span>
+            </div>
+            
+            <p style="margin-top: 20px; text-align: center;">
+                <a href="/api-docs" class="btn">View Complete API Documentation</a>
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>Built with ❤️ for the Auro productivity project</p>
+            <p>Node.js + Express + MongoDB + Swagger</p>
+        </div>
+    </div>
+
+    <script>
+        // Check server health
+        async function checkServerHealth() {
+            const statusElement = document.getElementById('server-status');
+            
+            try {
+                statusElement.textContent = '🔄 Checking...';
+                statusElement.className = 'status-indicator';
+                
+                const response = await fetch('/health');
+                const data = await response.json();
+                
+                if (response.ok && data.status === 'ok') {
+                    statusElement.textContent = '✅ Server Online';
+                    statusElement.className = 'status-indicator status-online';
+                } else {
+                    statusElement.textContent = '❌ Server Issues';
+                    statusElement.className = 'status-indicator status-offline';
+                }
+            } catch (error) {
+                statusElement.textContent = '❌ Server Offline';
+                statusElement.className = 'status-indicator status-offline';
+            }
+        }
+
+        // Show configuration section
+        function showConfig() {
+            document.getElementById('config-section').style.display = 'block';
+            document.getElementById('config-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Hide configuration section
+        function hideConfig() {
+            document.getElementById('config-section').style.display = 'none';
+        }
+
+        // Save configuration (placeholder function)
+        function saveConfig() {
+            const mongoUri = document.getElementById('mongo-uri').value;
+            const jwtKey = document.getElementById('jwt-key').value;
+            const port = document.getElementById('server-port').value;
+
+            if (!mongoUri || !jwtKey) {
+                alert('Please fill in both MongoDB URI and JWT Secret Key');
+                return;
+            }
+
+            // Show instructions
+            alert(`Configuration noted! To apply these changes:
+
+1. Update your .env file with:
+   MONGO_URI=${mongoUri}
+   KEY=${jwtKey}
+   PORT=${port}
+
+2. Restart the server using:
+   npm run dev
+
+Note: This is a demonstration. In production, configuration should be handled securely.`);
+
+            hideConfig();
+        }
+
+        // Check server status on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkServerHealth();
+        });
+    </script>
+</body>
+</html>

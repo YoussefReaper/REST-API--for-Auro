@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auro API Server</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .card h2 {
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card p {
+            color: #718096;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+
+        .status-indicator {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .status-online {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status-offline {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .status-pending {
+            background: #fef5e7;
+            color: #744210;
+        }
+
+        .config-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .config-form {
+            display: grid;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .form-group input {
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .api-endpoints {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .endpoint {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            background: #f7fafc;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .endpoint-method {
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .method-get { background: #c6f6d5; color: #22543d; }
+        .method-post { background: #bee3f8; color: #2a4365; }
+        .method-put { background: #fbb6ce; color: #742a2a; }
+        .method-delete { background: #fed7d7; color: #742a2a; }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+
+        .icon {
+            font-size: 1.5rem;
+        }
+
+        .database-init {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .init-steps {
+            display: grid;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .init-step {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border-left: 4px solid #e2e8f0;
+        }
+
+        .init-step.completed {
+            border-left-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .init-step.active {
+            border-left-color: #667eea;
+            background: #ebf8ff;
+        }
+
+        .step-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .step-icon.completed {
+            background: #48bb78;
+            color: white;
+        }
+
+        .step-icon.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🚀 Auro API Server</h1>
+            <p>Personal Productivity REST API Backend</p>
+        </div>
+
+        <!-- Database Initialization Section -->
+        <div class="database-init" id="database-init">
+            <h2>🎯 Database Initialization</h2>
+            <p>Initialize your Auro database with sample data and configure the system for first use.</p>
+            
+            <div class="init-steps">
+                <div class="init-step" id="step-1">
+                    <div class="step-icon" id="icon-1">1</div>
+                    <div>
+                        <strong>Check Database Connection</strong>
+                        <p>Verify MongoDB connection is working</p>
+                    </div>
+                </div>
+                
+                <div class="init-step" id="step-2">
+                    <div class="step-icon" id="icon-2">2</div>
+                    <div>
+                        <strong>Create Database Collections</strong>
+                        <p>Set up users, tasks, journals, and other collections</p>
+                    </div>
+                </div>
+                
+                <div class="init-step" id="step-3">
+                    <div class="step-icon" id="icon-3">3</div>
+                    <div>
+                        <strong>Insert Sample Data</strong>
+                        <p>Add demo users and sample productivity data</p>
+                    </div>
+                </div>
+                
+                <div class="init-step" id="step-4">
+                    <div class="step-icon" id="icon-4">4</div>
+                    <div>
+                        <strong>Verify Setup</strong>
+                        <p>Confirm all systems are working correctly</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center;">
+                <button class="btn btn-success" id="init-btn" onclick="initializeDatabase()">
+                    <span id="init-text">🚀 Initialize Database</span>
+                </button>
+                <button class="btn btn-danger" onclick="resetDatabase()" style="margin-left: 10px;">
+                    🗑️ Reset Database
+                </button>
+            </div>
+        </div>
+
+        <!-- Status and Quick Links -->
+        <div class="cards-container">
+            <div class="card">
+                <h2>
+                    <span class="icon">📊</span>
+                    Server Status
+                </h2>
+                <div id="server-status" class="status-indicator status-pending">
+                    🔄 Checking Status...
+                </div>
+                <div id="db-status" class="status-indicator status-pending">
+                    🔄 Checking Database...
+                </div>
+                <p>The Auro API server status and database connectivity information.</p>
+                <button class="btn" onclick="checkServerHealth()">Refresh Status</button>
+            </div>
+
+            <div class="card">
+                <h2>
+                    <span class="icon">📚</span>
+                    API Documentation
+                </h2>
+                <p>Explore the interactive API documentation with Swagger UI. Test endpoints, view schemas, and understand the API structure.</p>
+                <a href="/api-docs" class="btn" target="_blank">Open API Docs</a>
+            </div>
+
+            <div class="card">
+                <h2>
+                    <span class="icon">🔧</span>
+                    Quick Actions
+                </h2>
+                <p>Access common development tools and server information for the Auro project.</p>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <a href="/health" class="btn btn-secondary" target="_blank">Health Check</a>
+                    <button class="btn btn-warning" onclick="showConfig()">Configuration</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configuration Section -->
+        <div class="config-section" id="config-section" style="display: none;">
+            <h2>⚙️ Server Configuration</h2>
+            <p>Update your server configuration settings below. Changes require a server restart.</p>
+            
+            <div class="config-form">
+                <div class="form-group">
+                    <label for="mongo-uri">MongoDB Connection URI</label>
+                    <input type="text" id="mongo-uri" placeholder="mongodb+srv://username:password@cluster.mongodb.net/database">
+                </div>
+                
+                <div class="form-group">
+                    <label for="jwt-key">JWT Secret Key</label>
+                    <input type="password" id="jwt-key" placeholder="Enter your JWT secret key">
+                </div>
+                
+                <div class="form-group">
+                    <label for="server-port">Server Port</label>
+                    <input type="number" id="server-port" value="3000" placeholder="3000">
+                </div>
+                
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn" onclick="saveConfig()">Save Configuration</button>
+                    <button class="btn btn-secondary" onclick="hideConfig()">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Endpoints Overview -->
+        <div class="api-endpoints">
+            <h2>🛣️ API Endpoints Overview</h2>
+            <p>Key endpoints available in the Auro API:</p>
+            
+            <div class="endpoint">
+                <span class="endpoint-method method-post">POST</span>
+                <span>/api/auth/register</span>
+                <span>User registration</span>
+            </div>
+            
+            <div class="endpoint">
+                <span class="endpoint-method method-post">POST</span>
+                <span>/api/auth/login</span>
+                <span>User authentication</span>
+            </div>
+            
+            <div class="endpoint">
+                <span class="endpoint-method method-get">GET</span>
+                <span>/api/tasks</span>
+                <span>Retrieve user tasks</span>
+            </div>
+            
+            <div class="endpoint">
+                <span class="endpoint-method method-post">POST</span>
+                <span>/api/tasks</span>
+                <span>Create new task</span>
+            </div>
+            
+            <div class="endpoint">
+                <span class="endpoint-method method-get">GET</span>
+                <span>/api/journals</span>
+                <span>Get journal entries</span>
+            </div>
+            
+            <div class="endpoint">
+                <span class="endpoint-method method-get">GET</span>
+                <span>/api/habits</span>
+                <span>View user habits</span>
+            </div>
+            
+            <div class="endpoint">
+                <span class="endpoint-method method-get">GET</span>
+                <span>/api/plans</span>
+                <span>Retrieve user plans</span>
+            </div>
+            
+            <div class="endpoint">
+                <span class="endpoint-method method-get">GET</span>
+                <span>/api/user/profile</span>
+                <span>Get user profile</span>
+            </div>
+            
+            <p style="margin-top: 20px; text-align: center;">
+                <a href="/api-docs" class="btn">View Complete API Documentation</a>
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>Built with ❤️ for the Auro productivity project</p>
+            <p>Node.js + Express + MongoDB + Swagger</p>
+        </div>
+    </div>
+
+    <script>
+        let initializationInProgress = false;
+
+        // Initialize Database
+        async function initializeDatabase() {
+            if (initializationInProgress) return;
+            
+            initializationInProgress = true;
+            const initBtn = document.getElementById('init-btn');
+            const initText = document.getElementById('init-text');
+            
+            initBtn.disabled = true;
+            initText.innerHTML = '<span class="loading"></span> Initializing...';
+            
+            try {
+                // Step 1: Check Database Connection
+                await updateStep(1, 'active');
+                await delay(1000);
+                
+                const healthResponse = await fetch('/health');
+                if (!healthResponse.ok) throw new Error('Server health check failed');
+                
+                await updateStep(1, 'completed');
+                
+                // Step 2: Create Collections
+                await updateStep(2, 'active');
+                await delay(1500);
+                
+                const initResponse = await fetch('/api/init/database', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (!initResponse.ok) throw new Error('Database initialization failed');
+                await updateStep(2, 'completed');
+                
+                // Step 3: Insert Sample Data
+                await updateStep(3, 'active');
+                await delay(2000);
+                
+                const sampleResponse = await fetch('/api/init/sample-data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (!sampleResponse.ok) throw new Error('Sample data insertion failed');
+                await updateStep(3, 'completed');
+                
+                // Step 4: Verify Setup
+                await updateStep(4, 'active');
+                await delay(1000);
+                
+                const verifyResponse = await fetch('/api/init/verify');
+                if (!verifyResponse.ok) throw new Error('Setup verification failed');
+                
+                await updateStep(4, 'completed');
+                
+                // Success
+                initText.innerHTML = '✅ Database Initialized Successfully!';
+                initBtn.style.background = 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)';
+                
+                setTimeout(() => {
+                    checkServerHealth();
+                    resetInitialization();
+                }, 3000);
+                
+            } catch (error) {
+                console.error('Initialization failed:', error);
+                initText.innerHTML = '❌ Initialization Failed';
+                initBtn.style.background = 'linear-gradient(135deg, #f56565 0%, #e53e3e 100%)';
+                
+                setTimeout(() => {
+                    resetInitialization();
+                }, 3000);
+            }
+        }
+
+        // Reset Database
+        async function resetDatabase() {
+            if (!confirm('Are you sure you want to reset the database? This will delete all data!')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/init/reset', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    alert('Database reset successfully!');
+                    resetSteps();
+                    checkServerHealth();
+                } else {
+                    alert('Failed to reset database');
+                }
+            } catch (error) {
+                console.error('Reset failed:', error);
+                alert('Failed to reset database');
+            }
+        }
+
+        // Update initialization step
+        async function updateStep(stepNumber, status) {
+            const step = document.getElementById(`step-${stepNumber}`);
+            const icon = document.getElementById(`icon-${stepNumber}`);
+            
+            // Reset all steps after current
+            for (let i = stepNumber + 1; i <= 4; i++) {
+                document.getElementById(`step-${i}`).className = 'init-step';
+                document.getElementById(`icon-${i}`).className = 'step-icon';
+                document.getElementById(`icon-${i}`).textContent = i;
+            }
+            
+            step.className = `init-step ${status}`;
+            icon.className = `step-icon ${status}`;
+            
+            if (status === 'completed') {
+                icon.textContent = '✓';
+            } else if (status === 'active') {
+                icon.innerHTML = '<span class="loading" style="width: 14px; height: 14px; border-width: 2px;"></span>';
+            }
+        }
+
+        // Reset initialization UI
+        function resetInitialization() {
+            initializationInProgress = false;
+            const initBtn = document.getElementById('init-btn');
+            const initText = document.getElementById('init-text');
+            
+            initBtn.disabled = false;
+            initBtn.style.background = 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)';
+            initText.innerHTML = '🚀 Initialize Database';
+            
+            resetSteps();
+        }
+
+        // Reset all steps
+        function resetSteps() {
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`step-${i}`).className = 'init-step';
+                document.getElementById(`icon-${i}`).className = 'step-icon';
+                document.getElementById(`icon-${i}`).textContent = i;
+            }
+        }
+
+        // Check server health
+        async function checkServerHealth() {
+            const serverStatusElement = document.getElementById('server-status');
+            const dbStatusElement = document.getElementById('db-status');
+            
+            try {
+                serverStatusElement.textContent = '🔄 Checking Server...';
+                serverStatusElement.className = 'status-indicator status-pending';
+                
+                dbStatusElement.textContent = '🔄 Checking Database...';
+                dbStatusElement.className = 'status-indicator status-pending';
+                
+                const response = await fetch('/health');
+                const data = await response.json();
+                
+                if (response.ok && data.status === 'ok') {
+                    serverStatusElement.textContent = '✅ Server Online';
+                    serverStatusElement.className = 'status-indicator status-online';
+                } else {
+                    serverStatusElement.textContent = '❌ Server Issues';
+                    serverStatusElement.className = 'status-indicator status-offline';
+                }
+                
+                // Check database status
+                try {
+                    const dbResponse = await fetch('/api/init/status');
+                    const dbData = await dbResponse.json();
+                    
+                    if (dbResponse.ok && dbData.connected) {
+                        dbStatusElement.textContent = '✅ Database Connected';
+                        dbStatusElement.className = 'status-indicator status-online';
+                    } else {
+                        dbStatusElement.textContent = '❌ Database Disconnected';
+                        dbStatusElement.className = 'status-indicator status-offline';
+                    }
+                } catch (dbError) {
+                    dbStatusElement.textContent = '❌ Database Error';
+                    dbStatusElement.className = 'status-indicator status-offline';
+                }
+                
+            } catch (error) {
+                serverStatusElement.textContent = '❌ Server Offline';
+                serverStatusElement.className = 'status-indicator status-offline';
+                
+                dbStatusElement.textContent = '❌ Cannot Check Database';
+                dbStatusElement.className = 'status-indicator status-offline';
+            }
+        }
+
+        // Show configuration section
+        function showConfig() {
+            document.getElementById('config-section').style.display = 'block';
+            document.getElementById('config-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Hide configuration section
+        function hideConfig() {
+            document.getElementById('config-section').style.display = 'none';
+        }
+
+        // Save configuration
+        function saveConfig() {
+            const mongoUri = document.getElementById('mongo-uri').value;
+            const jwtKey = document.getElementById('jwt-key').value;
+            const port = document.getElementById('server-port').value;
+
+            if (!mongoUri || !jwtKey) {
+                alert('Please fill in both MongoDB URI and JWT Secret Key');
+                return;
+            }
+
+            alert(`Configuration noted! To apply these changes:
+
+1. Update your .env file with:
+   MONGO_URI=${mongoUri}
+   KEY=${jwtKey}
+   PORT=${port}
+
+2. Restart the server using:
+   npm run dev
+
+Note: This is a demonstration. In production, configuration should be handled securely.`);
+
+            hideConfig();
+        }
+
+        // Utility function for delays
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Check server status on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            checkServerHealth();
+        });
+    </script>
+</body>
+</html>

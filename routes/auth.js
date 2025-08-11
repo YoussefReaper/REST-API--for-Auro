@@ -4,7 +4,7 @@ const authController = require('../controllers/authController');
 
 /**
  * @swagger
- * /auth/register:
+ * /api/auth/register:
  *   post:
  *     summary: Register a new user
  *     description: Create a new user account
@@ -37,7 +37,7 @@ router.post('/register', authController.register);
 
 /**
  * @swagger
- * /auth/login:
+ * /api/auth/login:
  *   post:
  *     summary: Login a user
  *     description: Authenticate a user and return a token

@@ -5,10 +5,12 @@ const taskController = require('../controllers/taskController');
 
 /**
  * @swagger
- * /tasks:
+ * /api/tasks:
  *   post:
  *     summary: Create a new task
  *     tags: [Tasks]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -26,6 +28,8 @@ const taskController = require('../controllers/taskController');
  *     responses:
  *       201:
  *         description: Task created
+ *       401:
+ *         description: Unauthorized
  *       500:
  *         description: Server error
  */
@@ -33,13 +37,17 @@ router.post('/', authenticateToken, taskController.createTask);
 
 /**
  * @swagger
- * /tasks:
+ * /api/tasks:
  *   get:
  *     summary: Get all tasks
  *     tags: [Tasks]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of tasks
+ *       401:
+ *         description: Unauthorized
  *       500:
  *         description: Server error
  */
@@ -47,10 +55,12 @@ router.get('/', authenticateToken, taskController.getTasks);
 
 /**
  * @swagger
- * /tasks/{id}:
+ * /api/tasks/{id}:
  *   put:
  *     summary: Update a task by ID
  *     tags: [Tasks]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -73,6 +83,8 @@ router.get('/', authenticateToken, taskController.getTasks);
  *     responses:
  *       200:
  *         description: Task's info
+ *       401:
+ *         description: Unauthorized
  *       404:
  *         description: Task not found
  *       500:
@@ -82,10 +94,12 @@ router.put('/:id', authenticateToken, taskController.updateTask);
 
 /**
  * @swagger
- * /tasks/{id}:
+ * /api/tasks/{id}:
  *   delete:
  *     summary: Delete a task by ID
  *     tags: [Tasks]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -94,6 +108,8 @@ router.put('/:id', authenticateToken, taskController.updateTask);
  *     responses:
  *       200:
  *         description: Task deleted
+ *       401:
+ *         description: Unauthorized
  *       404:
  *         description: Task not found
  *       500:

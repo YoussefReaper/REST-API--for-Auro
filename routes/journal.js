@@ -6,10 +6,12 @@ const authenticateToken = require('../middleware/authMiddleware');
 
 /**
  * @swagger
- * /journals:
+ * /api/journals:
  *   post:
  *     summary: Create a new journal entry
  *     tags: [Journals]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -27,6 +29,8 @@ const authenticateToken = require('../middleware/authMiddleware');
  *     responses:
  *       201:
  *         description: Journal's info
+ *       401:
+ *         description: Unauthorized
  *       500:
  *         description: Server error
  */
@@ -34,14 +38,17 @@ router.post('/', authenticateToken, journalController.createJournal);
 
 /**
  * @swagger
- * /journals:
+ * /api/journals:
  *   get:
  *     summary: Get all journal entries
  *     tags: [Journals]
- * 
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of journal entries
+ *       401:
+ *         description: Unauthorized
  *       500:
  *         description: Server error
  */
@@ -49,7 +56,7 @@ router.get('/', authenticateToken, journalController.getJournals);
 
 /**
  * @swagger
- * /journals/{id}:
+ * /api/journals/{id}:
  *   delete:
  *     summary: Delete a journal entry
  *     tags: [Journals]
@@ -70,7 +77,7 @@ router.delete('/:id', authenticateToken, journalController.deleteJournal);
 
 /**
  * @swagger
- * /journals/{id}:
+ * /api/journals/{id}:
  *   get:
  *     summary: Get a journal entry by ID
  *     tags: [Journals]
@@ -91,7 +98,7 @@ router.get('/:id', authenticateToken, journalController.getJournalById);
 
 /**
  * @swagger
- * /journals/{id}:
+ * /api/journals/{id}:
  *   put:
  *     summary: Update a journal entry
  *     tags: [Journals]

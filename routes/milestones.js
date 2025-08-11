@@ -6,10 +6,12 @@ const authenticateToken = require('../middleware/authMiddleware');
 
 /**
  * @swagger
- * /milestones:
+ * /api/milestones:
  *   post:
  *     summary: Create a new milestone
  *     tags: [Milestones]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -34,13 +36,17 @@ router.post('/', authenticateToken, milestoneController.createMilestone);
 
 /**
  * @swagger
- * /milestones:
+ * /api/milestones:
  *   get:
  *     summary: Get all milestones
  *     tags: [Milestones]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of milestones
+ *       401:
+ *         description: Unauthorized
  *       500:
  *         description: Server error
  */
@@ -48,10 +54,12 @@ router.get('/', authenticateToken, milestoneController.getMilestones);
 
 /**
  * @swagger
- * /milestones/{id}:
+ * /api/milestones/{id}:
  *   put:
  *     summary: Update a milestone by ID
  *     tags: [Milestones]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -83,10 +91,12 @@ router.put('/:id', authenticateToken, milestoneController.updateMilestone);
 
 /**
  * @swagger
- * /milestones/{id}:
+ * /api/milestones/{id}:
  *   delete:
  *     summary: Delete a milestone by ID
  *     tags: [Milestones]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
