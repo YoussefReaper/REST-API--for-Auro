@@ -1,0 +1,51 @@
+const express = require('express');
+const router = express.Router();
+const userController = require('../controllers/userController');
+const authenticateToken = require('../middleware/authMiddleware');
+
+/**
+ * @swagger
+ * /user/profile:
+ *   get:
+ *     summary: Get user profile
+ *     tags: [User]
+ *     responses:
+ *       200:
+ *         description: User profile retrieved
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ */
+router.get('/profile', authenticateToken, userController.getProfile);
+
+/**
+ * @swagger
+ * /user/customization:
+ *   patch:
+ *     summary: Update user customization settings
+ *     tags: [User]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               theme:
+ *                 type: string
+ *               notifications:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *         description: Customization updated
+ *       400:
+ *         description: Bad request
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ */
+router.patch('/customization', authenticateToken, userController.updateCustomization);
+
+module.exports = router;
