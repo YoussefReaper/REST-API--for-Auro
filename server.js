@@ -51,6 +51,16 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html');
 });
 
+// Serve the API tester page
+app.get('/api-tester', (req, res) => {
+    res.sendFile(__dirname + '/api-tester.html');
+});
+
+// Serve the API tester page at /tester as well
+app.get('/tester', (req, res) => {
+    res.sendFile(__dirname + '/api-tester.html');
+});
+
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
 const PORT = process.env.PORT || 3000;

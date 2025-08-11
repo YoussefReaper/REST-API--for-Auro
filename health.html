@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auro API Health</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .online { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .offline { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .loading { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .info { background: #f7f7f7; padding: 10px; border-radius: 5px; margin: 10px 0; }
+        .btn {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover { background: #0056b3; }
+        pre { background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Auro API Health Check</h1>
+        
+        <div class="info">
+            <strong>API Base URL:</strong> <span id="api-url">http://localhost:3001</span>
+            <input type="text" id="api-input" placeholder="Enter API URL" style="width: 300px; padding: 5px; margin-left: 10px;">
+            <button class="btn" onclick="updateApiUrl()">Update</button>
+        </div>
+
+        <div class="status loading" id="status">
+            🔄 Checking server status...
+        </div>
+
+        <div>
+            <button class="btn" onclick="checkHealth()">🔄 Refresh</button>
+            <button class="btn" onclick="openApiTester()">🧪 Open API Tester</button>
+            <button class="btn" onclick="openSwaggerDocs()">📚 API Docs</button>
+        </div>
+
+        <div id="details" style="margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        let apiBaseUrl = 'http://localhost:3001';
+
+        // Load saved API URL
+        document.addEventListener('DOMContentLoaded', function() {
+            const saved = localStorage.getItem('auro-health-api');
+            if (saved) {
+                apiBaseUrl = saved;
+                document.getElementById('api-url').textContent = saved;
+                document.getElementById('api-input').value = saved;
+            }
+            checkHealth();
+        });
+
+        function updateApiUrl() {
+            const newUrl = document.getElementById('api-input').value.trim();
+            if (newUrl) {
+                apiBaseUrl = newUrl.endsWith('/') ? newUrl.slice(0, -1) : newUrl;
+                document.getElementById('api-url').textContent = apiBaseUrl;
+                localStorage.setItem('auro-health-api', apiBaseUrl);
+                checkHealth();
+            }
+        }
+
+        async function checkHealth() {
+            const statusEl = document.getElementById('status');
+            const detailsEl = document.getElementById('details');
+            
+            statusEl.className = 'status loading';
+            statusEl.innerHTML = '🔄 Checking server status...';
+            detailsEl.innerHTML = '';
+
+            try {
+                const response = await fetch(`${apiBaseUrl}/health`, {
+                    method: 'GET',
+                    mode: 'cors'
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    statusEl.className = 'status online';
+                    statusEl.innerHTML = '✅ Server is online and healthy!';
+                    
+                    detailsEl.innerHTML = `
+                        <h3>Server Details:</h3>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                        <div class="info">
+                            <strong>Server:</strong> ${data.service || 'Auro API'}<br>
+                            <strong>Version:</strong> ${data.version || 'Unknown'}<br>
+                            <strong>Uptime:</strong> ${Math.floor(data.uptime || 0)} seconds<br>
+                            <strong>Last Check:</strong> ${new Date().toLocaleString()}
+                        </div>
+                    `;
+                } else {
+                    statusEl.className = 'status offline';
+                    statusEl.innerHTML = `❌ Server responded with error: ${response.status}`;
+                    detailsEl.innerHTML = `<div class="info">Response: ${response.statusText}</div>`;
+                }
+            } catch (error) {
+                statusEl.className = 'status offline';
+                statusEl.innerHTML = '❌ Cannot connect to server';
+                detailsEl.innerHTML = `
+                    <div class="info">
+                        <strong>Error:</strong> ${error.message}<br>
+                        <strong>API URL:</strong> ${apiBaseUrl}<br>
+                        <strong>Possible causes:</strong>
+                        <ul>
+                            <li>Server is not running</li>
+                            <li>Wrong URL or port</li>
+                            <li>CORS issues (try using localhost)</li>
+                            <li>Network connectivity problems</li>
+                        </ul>
+                    </div>
+                `;
+            }
+        }
+
+        function openApiTester() {
+            window.open(`${window.location.origin}/api-tester.html`, '_blank');
+        }
+
+        function openSwaggerDocs() {
+            window.open(`${apiBaseUrl}/api-docs`, '_blank');
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(checkHealth, 30000);
+    </script>
+</body>
+</html>
