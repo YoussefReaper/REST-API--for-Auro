@@ -492,9 +492,28 @@
             
             // Auto-detect if we're running on localhost
             if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                const port = window.location.port || '3000';
+                const port = window.location.port || '3001';
                 document.getElementById('api-endpoint').value = `http://localhost:${port}`;
                 saveApiConfiguration();
+            } else if (window.location.hostname.includes('github.io') || window.location.hostname === 'aurocore.me') {
+                // For GitHub Pages or custom domains, suggest localhost as default
+                if (!localStorage.getItem('auro-api-endpoint')) {
+                    document.getElementById('api-endpoint').value = 'http://localhost:3001';
+                    document.getElementById('api-endpoint').focus();
+                    
+                    // Show prominent alert
+                    setTimeout(() => {
+                        alert('🔧 IMPORTANT: Configuration Required!\n\n' +
+                              'You\'re accessing this dashboard from: ' + window.location.href + '\n\n' +
+                              'Your API server needs to be running separately.\n\n' +
+                              'Steps to fix:\n' +
+                              '1. Start your API server locally: npm run dev\n' +
+                              '2. Set API endpoint to: http://localhost:3001\n' +
+                              '3. Click "Save Configuration"\n' +
+                              '4. Test the connection\n\n' +
+                              'For production, deploy your API server to a cloud service first.');
+                    }, 1000);
+                }
             }
         });
 
@@ -509,6 +528,12 @@
                 currentApiEndpoint = savedEndpoint;
                 updateApiStatusDisplay();
                 enableButtons();
+            } else {
+                // No saved endpoint, show warning
+                document.getElementById('server-status').textContent = '⚠️ Configure API endpoint first';
+                document.getElementById('server-status').className = 'status-indicator status-pending';
+                document.getElementById('db-status').textContent = '⚠️ Configure API endpoint first';
+                document.getElementById('db-status').className = 'status-indicator status-pending';
             }
             
             if (savedMongo) {
@@ -531,16 +556,22 @@
                 return;
             }
             
+            // Clean up the endpoint URL - remove trailing slashes
+            let cleanEndpoint = endpoint;
+            if (cleanEndpoint.endsWith('/')) {
+                cleanEndpoint = cleanEndpoint.slice(0, -1);
+            }
+            
             // Validate URL
             try {
-                new URL(endpoint);
+                new URL(cleanEndpoint);
             } catch (e) {
                 alert('Please enter a valid URL for the API endpoint');
                 return;
             }
             
-            currentApiEndpoint = endpoint;
-            localStorage.setItem('auro-api-endpoint', endpoint);
+            currentApiEndpoint = cleanEndpoint;
+            localStorage.setItem('auro-api-endpoint', cleanEndpoint);
             
             if (mongoUri) {
                 localStorage.setItem('auro-mongo-uri', mongoUri);
@@ -578,20 +609,22 @@
         // Test connection to API
         async function testConnection() {
             if (!currentApiEndpoint) {
-                alert('Please configure API endpoint first');
+                alert('❌ Please configure API endpoint first!\n\nClick "Save Configuration" after entering your API server URL.');
+                document.getElementById('api-endpoint').focus();
                 return;
             }
             
             try {
+                console.log('Testing connection to:', currentApiEndpoint + '/health');
                 const response = await fetch(`${currentApiEndpoint}/health`);
                 if (response.ok) {
                     const data = await response.json();
-                    alert(`✅ Connection successful!\nStatus: ${data.status}\nUptime: ${Math.floor(data.uptime || 0)} seconds`);
+                    alert(`✅ Connection successful!\nAPI Server: ${currentApiEndpoint}\nStatus: ${data.status}\nUptime: ${Math.floor(data.uptime || 0)} seconds`);
                 } else {
-                    alert(`❌ Connection failed with status: ${response.status}`);
+                    alert(`❌ Connection failed with status: ${response.status}\n\nMake sure your API server is running at: ${currentApiEndpoint}`);
                 }
             } catch (error) {
-                alert(`❌ Connection failed: ${error.message}`);
+                alert(`❌ Connection failed: ${error.message}\n\nMake sure:\n1. Your API server is running\n2. The URL is correct: ${currentApiEndpoint}\n3. CORS is enabled on your server`);
             }
         }
 
@@ -761,10 +794,11 @@
             const dbStatusElement = document.getElementById('db-status');
             
             if (!currentApiEndpoint) {
-                serverStatusElement.textContent = '⚙️ Configure API endpoint first';
-                serverStatusElement.className = 'status-indicator status-pending';
-                dbStatusElement.textContent = '⚙️ Configure API endpoint first';
-                dbStatusElement.className = 'status-indicator status-pending';
+                serverStatusElement.textContent = '❌ API endpoint not configured';
+                serverStatusElement.className = 'status-indicator status-offline';
+                dbStatusElement.textContent = '❌ API endpoint not configured';
+                dbStatusElement.className = 'status-indicator status-offline';
+                console.warn('No API endpoint configured. Please set currentApiEndpoint first.');
                 return;
             }
             
@@ -775,6 +809,7 @@
                 dbStatusElement.textContent = '🔄 Checking Database...';
                 dbStatusElement.className = 'status-indicator status-pending';
                 
+                console.log('Checking server health at:', currentApiEndpoint + '/health');
                 const response = await fetch(`${currentApiEndpoint}/health`);
                 const data = await response.json();
                 
@@ -788,6 +823,7 @@
                 
                 // Check database status
                 try {
+                    console.log('Checking database status at:', currentApiEndpoint + '/api/init/status');
                     const dbResponse = await fetch(`${currentApiEndpoint}/api/init/status`);
                     const dbData = await dbResponse.json();
                     
@@ -799,12 +835,14 @@
                         dbStatusElement.className = 'status-indicator status-offline';
                     }
                 } catch (dbError) {
+                    console.error('Database check error:', dbError);
                     dbStatusElement.textContent = '❌ Database Error';
                     dbStatusElement.className = 'status-indicator status-offline';
                 }
                 
             } catch (error) {
-                serverStatusElement.textContent = '❌ Server Offline';
+                console.error('Server health check error:', error);
+                serverStatusElement.textContent = `❌ Server Offline (${currentApiEndpoint})`;
                 serverStatusElement.className = 'status-indicator status-offline';
                 
                 dbStatusElement.textContent = '❌ Cannot Check Database';
