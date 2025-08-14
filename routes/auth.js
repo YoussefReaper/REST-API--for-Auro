@@ -3,7 +3,7 @@ const router = express.Router();
 const authController = require('../controllers/authController');
 const { forgotPassword, resetPassword, forgotUsername } = require("../controllers/forgotPassword");
 const crypto = require("crypto");
-const {sendVerificationEmail} = require("../controllers/userController")
+const userController = require("../controllers/userController")
 const emailRequestLimiter = require("../middleware/rateLimit");
 const authenticateToken = require('../middleware/authMiddleware');
 
