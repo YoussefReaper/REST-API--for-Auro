@@ -1,5 +1,5 @@
 const {Resend} = require('resend');
-const resend = new Resend("re_PpCgJWjQ_2UzbQTsGWHX5y3Fqs1Q7SiH3");
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 console.log('Resend initialized with API key:', resend);
 
