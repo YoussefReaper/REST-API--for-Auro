@@ -52,4 +52,8 @@ router.get('/profile', authenticateToken, userController.getProfile);
  */
 router.patch('/customization', authenticateToken, userController.updateCustomization);
 
+router.patch('/profile', authenticateToken, userController.updateProfile);
+
+router.patch('/subscription', authenticateToken, userController.updateSubscription);
+
 module.exports = router;

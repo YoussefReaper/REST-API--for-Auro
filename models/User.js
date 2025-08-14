@@ -35,6 +35,13 @@ const customizationSchema = new mongoose.Schema({
 const userSchema = new mongoose.Schema({
     username: { type: String, unique: true, required: true },
     password: { type: String, required: true },
+    profilePicture: { type: String, default: 'default.jpg' },
+    profileDescription: { type: String, default: '' },
+    aiName: { type: String, default: 'AI Assistant' },
+    aiProfilePicture: { type: String, default: 'default.jpg' },
+    aiPersonality: { type: String, default: '' },
+    aiDescription: { type: String, default: '' },
+    subscription: { type: String, default: 'free' },
     badHabits: [String],
     goodHabits: [String],
     chatHistories: [chatHistorySchema],
