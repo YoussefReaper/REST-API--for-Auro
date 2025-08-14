@@ -42,12 +42,7 @@ const specs = swaggerJsdoc(options);
 
 const app = express();
 app.use(express.json());
-app.use(cors({
-    origin: 'http://127.0.0.1:5500',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials:true
-}));
+app.use(cors());
 app.use(session({
     secret: process.env.SESSION_SECRET || "aurocore-secret",
     resave: false,
