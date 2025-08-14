@@ -5,7 +5,7 @@ const habitController = require('../controllers/habitController');
 
 /**
  * @swagger
- * /api/habits:
+ * /habits:
  *   post:
  *     summary: Create a new habit
  *     description: Add a habit to the database
@@ -40,7 +40,7 @@ router.post('/', authenticateToken, habitController.addHabit);
 
 /**
  * @swagger
- * /api/habits:
+ * /habits:
  *   delete:
  *     summary: deletes a habit
  *     tags: [Habits]
@@ -73,7 +73,7 @@ router.delete('/', authenticateToken, habitController.removeHabit);
 
 /**
  * @swagger
- * /api/habits:
+ * /habits:
  *   get:
  *     summary: Gets all the habits
  *     description: Gets the habits info from user's database depends on the type

@@ -5,7 +5,7 @@ const taskController = require('../controllers/taskController');
 
 /**
  * @swagger
- * /api/tasks:
+ * /tasks:
  *   post:
  *     summary: Create a new task
  *     tags: [Tasks]
@@ -37,7 +37,7 @@ router.post('/', authenticateToken, taskController.createTask);
 
 /**
  * @swagger
- * /api/tasks:
+ * /tasks:
  *   get:
  *     summary: Get all tasks
  *     tags: [Tasks]
@@ -55,7 +55,7 @@ router.get('/', authenticateToken, taskController.getTasks);
 
 /**
  * @swagger
- * /api/tasks/{id}:
+ * /tasks/{id}:
  *   put:
  *     summary: Update a task by ID
  *     tags: [Tasks]
@@ -94,7 +94,7 @@ router.put('/:id', authenticateToken, taskController.updateTask);
 
 /**
  * @swagger
- * /api/tasks/{id}:
+ * /tasks/{id}:
  *   delete:
  *     summary: Delete a task by ID
  *     tags: [Tasks]

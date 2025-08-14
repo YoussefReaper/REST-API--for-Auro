@@ -6,7 +6,7 @@ const authenticateToken = require('../middleware/authMiddleware');
 
 /**
  * @swagger
- * /api/milestones:
+ * /milestones:
  *   post:
  *     summary: Create a new milestone
  *     tags: [Milestones]
@@ -36,7 +36,7 @@ router.post('/', authenticateToken, milestoneController.createMilestone);
 
 /**
  * @swagger
- * /api/milestones:
+ * /milestones:
  *   get:
  *     summary: Get all milestones
  *     tags: [Milestones]
@@ -54,7 +54,7 @@ router.get('/', authenticateToken, milestoneController.getMilestones);
 
 /**
  * @swagger
- * /api/milestones/{id}:
+ * /milestones/{id}:
  *   put:
  *     summary: Update a milestone by ID
  *     tags: [Milestones]
@@ -91,7 +91,7 @@ router.put('/:id', authenticateToken, milestoneController.updateMilestone);
 
 /**
  * @swagger
- * /api/milestones/{id}:
+ * /milestones/{id}:
  *   delete:
  *     summary: Delete a milestone by ID
  *     tags: [Milestones]

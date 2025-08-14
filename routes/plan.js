@@ -6,7 +6,7 @@ const authenticateToken = require('../middleware/authMiddleware');
 
 /**
  * @swagger
- * /api/plans:
+ * /plans:
  *   post:
  *     summary: Create a new plan
  *     tags: [Plans]
@@ -54,7 +54,7 @@ router.post('/', authenticateToken, planController.createPlan);
 
 /**
  * @swagger
- * /api/plans:
+ * /plans:
  *   get:
  *     summary: Get all plans for the authenticated user
  *     tags: [Plans]
@@ -95,7 +95,7 @@ router.get('/', authenticateToken, planController.getPlans);
 
 /**
  * @swagger
- * /api/plans/{id}:
+ * /plans/{id}:
  *   get:
  *     summary: Get a specific plan by ID
  *     tags: [Plans]
@@ -143,7 +143,7 @@ router.get('/:id', authenticateToken, planController.getPlanById);
 
 /**
  * @swagger
- * /api/plans/{id}:
+ * /plans/{id}:
  *   put:
  *     summary: Update a plan by ID
  *     tags: [Plans]
@@ -200,7 +200,7 @@ router.put('/:id', authenticateToken, planController.updatePlan);
 
 /**
  * @swagger
- * /api/plans/{id}:
+ * /plans/{id}:
  *   delete:
  *     summary: Delete a plan by ID
  *     tags: [Plans]

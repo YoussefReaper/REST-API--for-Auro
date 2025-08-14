@@ -6,7 +6,7 @@ const authenticateToken = require('../middleware/authMiddleware');
 
 /**
  * @swagger
- * /api/journals:
+ * /journals:
  *   post:
  *     summary: Create a new journal entry
  *     tags: [Journals]
@@ -38,7 +38,7 @@ router.post('/', authenticateToken, journalController.createJournal);
 
 /**
  * @swagger
- * /api/journals:
+ * /journals:
  *   get:
  *     summary: Get all journal entries
  *     tags: [Journals]
@@ -56,7 +56,7 @@ router.get('/', authenticateToken, journalController.getJournals);
 
 /**
  * @swagger
- * /api/journals/{id}:
+ * /journals/{id}:
  *   delete:
  *     summary: Delete a journal entry
  *     tags: [Journals]
@@ -77,7 +77,7 @@ router.delete('/:id', authenticateToken, journalController.deleteJournal);
 
 /**
  * @swagger
- * /api/journals/{id}:
+ * /journals/{id}:
  *   get:
  *     summary: Get a journal entry by ID
  *     tags: [Journals]
@@ -98,7 +98,7 @@ router.get('/:id', authenticateToken, journalController.getJournalById);
 
 /**
  * @swagger
- * /api/journals/{id}:
+ * /journals/{id}:
  *   put:
  *     summary: Update a journal entry
  *     tags: [Journals]

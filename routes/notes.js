@@ -6,7 +6,7 @@ const authenticateToken = require('../middleware/authMiddleware');
 
 /**
  * @swagger
- * /api/notes:
+ * /notes:
  *   post:
  *     summary: Create a new note
  *     tags: [Notes]
@@ -31,7 +31,7 @@ router.post('/', authenticateToken, noteController.createNote);
 
 /**
  * @swagger
- * /api/notes:
+ * /notes:
  *   get:
  *     summary: Get all notes
  *     tags: [Notes]
@@ -45,7 +45,7 @@ router.get('/', authenticateToken, noteController.getNotes);
 
 /**
  * @swagger
- * /api/notes/{id}:
+ * /notes/{id}:
  *   get:
  *     summary: Get a note by ID
  *     tags: [Notes]
@@ -66,7 +66,7 @@ router.get('/:id', authenticateToken, noteController.getNoteById);
 
 /**
  * @swagger
- * /api/notes/{id}:
+ * /notes/{id}:
  *   put:
  *     summary: Update a note by ID
  *     tags: [Notes]
@@ -98,7 +98,7 @@ router.put('/:id', authenticateToken, noteController.updateNote);
 
 /**
  * @swagger
- * /api/notes/{id}:
+ * /notes/{id}:
  *   delete:
  *     summary: Delete a note by ID
  *     tags: [Notes]

@@ -35,6 +35,12 @@ const customizationSchema = new mongoose.Schema({
 const userSchema = new mongoose.Schema({
     username: { type: String, unique: true, required: true },
     password: { type: String, required: true },
+    email: { type: String, unique: true, required: true },
+    isVerified: { type: Boolean, default: false },
+    emailVerificationToken: { type: String },
+    emailVerificationExpires: {type: Date},
+    resetPasswordToken: { type: String },
+    resetPasswordExpire: {type: Date},
     profilePicture: { type: String, default: 'default.jpg' },
     profileDescription: { type: String, default: '' },
     aiName: { type: String, default: 'AI Assistant' },

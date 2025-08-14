@@ -5,7 +5,7 @@ const memoryController = require('../controllers/memoryController');
 
 /**
  * @swagger
- * /api/memories:
+ * /memories:
  *   post:
  *     summary: Upsert a memory
  *     tags: [Memories]
@@ -32,7 +32,7 @@ router.post('/', authenticateToken, memoryController.upsertMemory);
 
 /**
  * @swagger
- * /api/memories:
+ * /memories:
  *   get:
  *     summary: Get all memories
  *     tags: [Memories]
@@ -46,7 +46,7 @@ router.get('/', authenticateToken, memoryController.getAllMemories);
 
 /**
  * @swagger
- * /api/memories/{key}:
+ * /memories/{key}:
  *   delete:
  *     summary: Delete a memory
  *     tags: [Memories]

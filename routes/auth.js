@@ -1,10 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
-
+const { forgotPassword, resetPassword, forgotUsername } = require("../controllers/forgotPassword");
+const crypto = require("crypto");
+const {sendVerificationEmail} = require("../controllers/userController")
+const emailRequestLimiter = require("../middleware/rateLimit");
 /**
  * @swagger
- * /api/auth/register:
+ * /auth/register:
  *   post:
  *     summary: Register a new user
  *     description: Create a new user account
@@ -37,7 +40,7 @@ router.post('/register', authController.register);
 
 /**
  * @swagger
- * /api/auth/login:
+ * /auth/login:
  *   post:
  *     summary: Login a user
  *     description: Authenticate a user and return a token
@@ -66,5 +69,15 @@ router.post('/register', authController.register);
  *         description: Server error
  */
 router.post('/login', authController.login);
+router.post("/forgot-password", emailRequestLimiter, forgotPassword);
+router.post("/reset-password/:token", emailRequestLimiter, resetPassword);
+router.post("/forgot-username", emailRequestLimiter, forgotUsername);
+
+router.post('/send-verification-email', emailRequestLimiter, authenticateToken, userController.sendVerificationEmail);
+router.get('/verify-email', emailRequestLimiter,userController.verifyEmail);
+router.post("/logout", (req, res) => {
+  res.clearCookie("refreshToken");
+  return res.json({ message: "Logged out successfully" });
+});
 
 module.exports = router;

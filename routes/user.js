@@ -6,7 +6,7 @@ const upload = require('../middleware/upload')
 
 /**
  * @swagger
- * /api/user/profile:
+ * /user/profile:
  *   get:
  *     summary: Get user profile
  *     tags: [User]
@@ -24,7 +24,7 @@ router.get('/profile', authenticateToken, userController.getProfile);
 
 /**
  * @swagger
- * /api/user/customization:
+ * /user/customization:
  *   patch:
  *     summary: Update user customization settings
  *     tags: [User]

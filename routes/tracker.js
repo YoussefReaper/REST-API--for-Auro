@@ -5,7 +5,7 @@ const trackerController = require('../controllers/trackerController');
 
 /**
  * @swagger
- * /api/tracker:
+ * /tracker:
  *   post:
  *     summary: Log a new entry
  *     tags: [Tracker]
@@ -32,7 +32,7 @@ router.post('/', authenticateToken, trackerController.logEntry);
 
 /**
  * @swagger
- * /api/tracker:
+ * /tracker:
  *   get:
  *     summary: Get all tracking entries
  *     tags: [Tracker]
