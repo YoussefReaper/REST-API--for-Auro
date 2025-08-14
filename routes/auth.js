@@ -5,6 +5,8 @@ const { forgotPassword, resetPassword, forgotUsername } = require("../controller
 const crypto = require("crypto");
 const {sendVerificationEmail} = require("../controllers/userController")
 const emailRequestLimiter = require("../middleware/rateLimit");
+const authenticateToken = require('../middleware/authMiddleware');
+
 /**
  * @swagger
  * /auth/register:

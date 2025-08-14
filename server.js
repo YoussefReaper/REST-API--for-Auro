@@ -2,7 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./utils/db');
-//const {swaggerUi, specs} = require('./swagger');
+const session = require("express-session");
+const passport = require("passport");
 
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
@@ -42,6 +43,14 @@ const specs = swaggerJsdoc(options);
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use(session({
+    secret: process.env.SESSION_SECRET || "aurocore-secret",
+    resave: false,
+    saveUninitialized: true,
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 
