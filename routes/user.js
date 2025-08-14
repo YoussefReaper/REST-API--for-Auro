@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
 const authenticateToken = require('../middleware/authMiddleware');
+const upload = require('../middleware/upload')
 
 /**
  * @swagger
@@ -52,7 +53,10 @@ router.get('/profile', authenticateToken, userController.getProfile);
  */
 router.patch('/customization', authenticateToken, userController.updateCustomization);
 
-router.patch('/profile', authenticateToken, userController.updateProfile);
+router.patch('/profile', authenticateToken, upload.fields([
+    { name: 'profilePicture', maxCount: 1},
+    { name: 'aiProfilePicture', maxCount: 1}
+]), userController.updateProfile);
 
 router.patch('/subscription', authenticateToken, userController.updateSubscription);
 

@@ -47,13 +47,20 @@ exports.updateProfile = async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({message: 'User not found'});
-        const { profileDescription, profilePicture, aiName, aiDescription, aiPersonality } = req.body;
+        const { profileDescription, aiName, aiDescription, aiPersonality } = req.body;
+
+        if (req.files && req.files.profilePicture) {
+            user.profilePicture = req.files.profilePicture[0].path;
+        }
+
+        if (req.files && req.files.aiProfilePicture) {
+            user.aiProfilePicture = req.files.aiProfilePicture[0].path;
+        }
+
         user.profileDescription = profileDescription || user.profileDescription;
-        user.profilePicture = profilePicture || user.profilePicture;
         user.aiName = aiName || user.aiName;
         user.aiDescription = aiDescription || user.aiDescription;
         user.aiPersonality = aiPersonality || user.aiPersonality;
-        user.aiProfilePicture = profilePicture || user.aiProfilePicture;
         await user.save();
         res.status(201).json({message: 'Profile updated'});
     } catch(err) {
