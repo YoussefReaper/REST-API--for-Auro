@@ -34,9 +34,12 @@ const customizationSchema = new mongoose.Schema({
 
 const userSchema = new mongoose.Schema({
     username: { type: String, unique: true, required: true },
+    displayName: { type: String, default: '' },
     password: { type: String, required: true },
     email: { type: String, unique: true, required: true },
     isVerified: { type: Boolean, default: false },
+    googleId: { type: String, unique: true },
+    githubId: { type: String, unique: true },
     emailVerificationToken: { type: String },
     emailVerificationExpires: {type: Date},
     resetPasswordToken: { type: String },

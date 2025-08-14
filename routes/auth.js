@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const passport = require("passport");
 const authController = require('../controllers/authController');
 const { forgotPassword, resetPassword, forgotUsername } = require("../controllers/forgotPassword");
 const crypto = require("crypto");
@@ -81,5 +82,26 @@ router.post("/logout", (req, res) => {
   res.clearCookie("refreshToken");
   return res.json({ message: "Logged out successfully" });
 });
+router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+
+router.get("/auth/google/callback", passport.authenticate("google", { failureRedirect: "/login" }), (req, res) => {
+    const token = generateJwt(req.user);
+    res.redirect(`${process.env.CLIENT_URL}/home?token=${token}`);
+});
+
+router.get("/auth/github", passport.authenticate("github", { scope: ["user:email"] }));
+router.get("/auth/github/callback", passport.authenticate("github", { failureRedirect: "/login" }), (req, res) => {
+    let email = profile.emails && profile.emails[0] ? profile.emails[0].value : null;
+
+    if(!email) {
+        email = `github_${profile.id}@aurocore.com`;
+    }
+    const token = generateJwt(req.user);
+    res.redirect(`${process.env.CLIENT_URL}/home?token=${token}`);
+});
+
+function generateJwt(user) {
+    return jwt.sign({ id: user._id, username: user.username}, process.env.KEY, { expiresIn: "1h" });
+}
 
 module.exports = router;
