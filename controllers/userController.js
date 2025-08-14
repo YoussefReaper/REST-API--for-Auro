@@ -2,7 +2,7 @@ const User = require('../models/User');
 const { Resend } = require('resend');
 const crypto = require('crypto');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend("re_PpCgJWjQ_2UzbQTsGWHX5y3Fqs1Q7SiH3");
 
 exports.sendVerificationEmail = async (req, res) => {
     try {
