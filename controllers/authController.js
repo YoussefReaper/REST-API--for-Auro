@@ -27,7 +27,7 @@ exports.register = async (req, res) => {
 };
 
 exports.login = async (req, res) => {
-    const {username,password} = req.body;
+    const {username,password, rememberMe} = req.body;
     if(!username||!password) return res.status(400).json({message: 'Username and password are required'});
 
     try {
@@ -36,9 +36,34 @@ exports.login = async (req, res) => {
         if (user.isVerified !== true) return res.status(402).json({message: 'Email not verified'});
         const valid = await bcrypt.compare(password, user.password);
         if(!valid) return res.status(401).json({message: 'Invalid credentials'});
-        const token = jwt.sign({ username: user.username, id: user._id}, KEY, {expiresIn: '1h'});
-        res.status(200).json({token});
+        const accessToken = jwt.sign({ username: user.username, id: user._id}, KEY, {expiresIn: '1h'});
+
+        const refreshToken = jwt.sign({
+            username: user.username, id: user._id
+        },
+        KEY,
+        {expiresIn: rememberMe? '30d' : '1d'});
+
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'strict',
+            maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000
+        });
+        res.status(200).json({accessToken});
     } catch(err) {
         res.status(500).json({ message: 'Server error', error: err.message});
     }
+};
+
+exports.refreshToken = (req, res) => {
+    const refreshToken = req.cookies.refreshToken;
+    if (!refreshToken) return res.status(401).json({ message: 'No refresh token'});
+
+    jwt.verify(refreshToken, KEY, (err, user) => {
+        if (err) return res.status(403).json({ message: 'Invalid refresh token'});
+        const newAccessToken = jwt.sign({username: user.username, id: user._id}, KEY, {expiresIn: '1h'});
+
+        res.json({ accessToken: newAccessToken});
+    });
 };

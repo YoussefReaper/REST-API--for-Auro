@@ -100,6 +100,8 @@ router.get("/auth/github/callback", passport.authenticate("github", { failureRed
     res.redirect(`${process.env.CLIENT_URL}/home?token=${token}`);
 });
 
+router.get("/auth/refresh", emailRequestLimiter, authController.refreshToken)
+
 function generateJwt(user) {
     return jwt.sign({ id: user._id, username: user.username}, process.env.KEY, { expiresIn: "1h" });
 }
