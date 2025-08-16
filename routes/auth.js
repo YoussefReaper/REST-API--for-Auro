@@ -82,27 +82,36 @@ router.get('/verify-email', emailRequestLimiter,userController.verifyEmail);
 
 router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
-router.get("/google/callback", passport.authenticate("google", { failureRedirect: "/login" }), (req, res) => {
+router.get("/google/callback", passport.authenticate("google", { failureRedirect: "/login" }), async (req, res) => {
     console.log("Google User:", req.user);
     const {accessToken, refreshToken} = generateJwt(req.user);
-    res.redirect(`${process.env.CLIENT_URL}/home?accessToken=${accessToken}&refreshToken=${refreshToken}`);
+    const sessionId = crypto.randomBytes(16).toString('hex');
+    user.refreshTokens.push(refreshToken);
+    user.sessionIds = user.sessionIds || [];
+    user.sessionIds.push({ id: sessionId, token: refreshToken });
+    await user.save();
+    res.redirect(`${process.env.CLIENT_URL}/home?accessToken=${accessToken}&sessionId=${sessionId}`);
 });
 
 router.get("/github", passport.authenticate("github", { scope: ["user:email"] }));
-router.get("/github/callback", passport.authenticate("github", { failureRedirect: "/login" }), (req, res) => {
+router.get("/github/callback", passport.authenticate("github", { failureRedirect: "/login" }), async (req, res) => {
     let email = req.user.emails && req.user.emails[0] ? req.user.emails[0].value : null;
-
     if(!email) {
         email = `github_${req.user.id}@aurocore.com`;
     }
     const { accessToken, refreshToken } = generateJwt(req.user);
+    const sessionId = crypto.randomBytes(16).toString('hex');
     console.log("GitHub User:", req.user);
+    user.refreshTokens.push(refreshToken);
+    user.sessionIds = user.sessionIds || [];
+    user.sessionIds.push({ id: sessionId, token: refreshToken });
+    await user.save();
     res.redirect(
-      `${process.env.CLIENT_URL}/home?accessToken=${accessToken}&refreshToken=${refreshToken}`
+      `${process.env.CLIENT_URL}/home?accessToken=${accessToken}&sessionId=${sessionId}`
     );
 });
 
-router.get("/refresh", authController.refreshToken);
+router.post("/refresh", authController.refreshToken);
 router.post("/logout", emailRequestLimiter, authController.logout);
 
 function generateJwt(user) {
