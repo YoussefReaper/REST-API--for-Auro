@@ -29,7 +29,7 @@ exports.register = async (req, res) => {
         await newUser.save();
         res.status(201).json({
             message: 'User created',
-            token: token
+            accessToken: token
         });
     } catch(err) {
         res.status(500).json({message: 'Server error', error: err.message});
@@ -75,7 +75,7 @@ exports.login = async (req, res) => {
             maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000
         });
 
-        res.status(200).json({message: "Logged in successfully", token: accessToken, sessionId: sessionId});
+        res.status(200).json({message: "Logged in successfully", accessToken: accessToken, sessionId: sessionId});
     } catch(err) {
         res.status(500).json({ message: 'Server error', error: err.message});
     }
@@ -112,7 +112,7 @@ exports.refreshToken = async (req, res) => {
                 maxAge: 15 * 60 * 1000
             });
 
-            res.json({message: "Access token refreshed", token: newAccessToken});
+            res.json({message: "Access token refreshed", accessToken: newAccessToken});
         });
     } catch(err) {
         res.status(500).json({ message: 'Server error', error: err.message});
