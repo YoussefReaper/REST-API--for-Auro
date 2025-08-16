@@ -82,22 +82,9 @@ router.get('/verify-email', emailRequestLimiter,userController.verifyEmail);
 router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
 router.get("/google/callback", passport.authenticate("google", { failureRedirect: "/login" }), (req, res) => {
+    console.log("Google User:", req.user);
     const {accessToken, refreshToken} = generateJwt(req.user);
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      maxAge: 15 * 60 * 1000
-    });
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000
-    });
-
-    res.redirect(`${process.env.CLIENT_URL}/home`);
+    res.redirect(`${process.env.CLIENT_URL}/home?accessToken=${accessToken}&refreshToken=${refreshToken}`);
 });
 
 router.get("/github", passport.authenticate("github", { scope: ["user:email"] }));
@@ -107,22 +94,11 @@ router.get("/github/callback", passport.authenticate("github", { failureRedirect
     if(!email) {
         email = `github_${req.user.id}@aurocore.com`;
     }
-    const {accessToken, refreshToken} = generateJwt(req.user);
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      maxAge: 15 * 60 * 1000
-    });
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000
-    });
-
-    res.redirect(`${process.env.CLIENT_URL}/home`);
+    const { accessToken, refreshToken } = generateJwt(req.user);
+    console.log("GitHub User:", req.user);
+    res.redirect(
+      `${process.env.CLIENT_URL}/home?accessToken=${accessToken}&refreshToken=${refreshToken}`
+    );
 });
 
 router.get("/refresh", authController.refreshToken);

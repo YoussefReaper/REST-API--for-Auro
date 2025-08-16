@@ -128,7 +128,6 @@ exports.updateCustomization = async (req, res) => {
                 updates['customization.trackerBackgrounds.mobile_pause'] = req.files['tracker_mobile_pause'][0].path;
             }
         }
-
         const user = await User.findByIdAndUpdate(
             req.user.id,
             { $set: updates },
