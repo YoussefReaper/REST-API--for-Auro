@@ -22,7 +22,8 @@ exports.register = async (req, res) => {
         res.cookie("accessToken", token, {
             httpOnly: true,
             secure: true,
-            sameSite: 'strict',
+            sameSite: 'none',
+            domain: ".aurocore.me",
             maxAge: 15 * 60 * 1000
         });
         await newUser.save();
@@ -56,14 +57,16 @@ exports.login = async (req, res) => {
         res.cookie("accessToken", accessToken, {
             httpOnly: true,
             secure: true,
-            sameSite: 'strict',
+            sameSite: 'none',
+            domain: ".aurocore.me",
             maxAge: 15 * 60 * 1000
         });
 
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             secure: true,
-            sameSite: 'strict',
+            sameSite: 'none',
+            domain: ".aurocore.me",
             maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000
         });
         res.status(200).json({message: "Logged in successfully"});
@@ -91,7 +94,8 @@ exports.refreshToken = async (req, res) => {
             res.cookie("accessToken", newAccessToken, {
                 httpOnly: true,
                 secure: true,
-                sameSite: 'strict',
+                sameSite: 'none',
+                domain: ".aurocore.me",
                 maxAge: 15 * 60 * 1000
             });
 
@@ -112,8 +116,8 @@ exports.logout = async (req, res) => {
             user.refreshTokens = user.refreshTokens.filter(token => token !== refreshToken);
             await user.save();
         }
-        res.clearCookie("refreshToken", {httpOnly: true, secure: true, sameSite: 'strict'});
-        res.clearCookie("accessToken", {httpOnly: true, secure: true, sameSite: 'strict'});
+        res.clearCookie("refreshToken", {httpOnly: true, secure: true, sameSite: 'none', domain: ".aurocore.me"});
+        res.clearCookie("accessToken", {httpOnly: true, secure: true, sameSite: 'none', domain: ".aurocore.me"});
         res.sendStatus(204);
     } catch(err) {
         res.status(500).json({ message: 'Server error', error: err.message});
