@@ -141,3 +141,20 @@ exports.logout = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
+
+exports.checkSession = async (req, res) => {
+    const sessionId = req.cookies.sessionId || req.body.sessionId;
+    if (!sessionId) return res.status(401).json({ message: 'No session ID' });
+
+    try {
+        const user = await User.findOne({ "sessionIds.id": sessionId });
+        if (!user) return res.status(403).json({ message: 'Invalid session ID' });
+
+        const sessionData = user.sessionIds.find(session => session.id === sessionId);
+        if (!sessionData) return res.status(403).json({ message: 'Session not found' });
+
+        res.status(200).json({ message: 'Session is valid', user: { id: user._id, username: user.username } });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};

@@ -113,6 +113,7 @@ router.get("/github/callback", passport.authenticate("github", { failureRedirect
 
 router.post("/refresh", authController.refreshToken);
 router.post("/logout", emailRequestLimiter, authController.logout);
+router.post("/check-session", authController.checkSession);
 
 function generateJwt(user) {
   const accessToken = jwt.sign(
@@ -129,5 +130,4 @@ function generateJwt(user) {
 
   return { accessToken, refreshToken };
 }
-
 module.exports = router;
