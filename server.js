@@ -4,6 +4,7 @@ const cors = require('cors');
 const connectDB = require('./utils/db');
 const session = require("express-session");
 const passport = require("passport");
+require("./passport");
 
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");

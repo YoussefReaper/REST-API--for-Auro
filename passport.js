@@ -44,7 +44,6 @@ passport.use(new GitHubStrategy({
         if (!user) {
             user = new User({
                 username: profile.username,
-                email: email,
                 githubId: profile.id,
                 isVerified: true
             });
