@@ -22,10 +22,11 @@ exports.register = async (req, res) => {
         res.cookie("accessToken", token, {
             httpOnly: true,
             secure: true,
-            sameSite: 'none',
-            domain: ".aurocore.me",
+            sameSite: 'lax', // Change from 'none' to 'lax'
+            path: '/', // Ensure cookie is available for all paths
             maxAge: 15 * 60 * 1000
         });
+
         console.log(token);
         await newUser.save();
         res.status(201).json({message: 'User created'});
