@@ -18,7 +18,7 @@ exports.sendVerificationEmail = async (req, res) => {
         user.emailVerificationExpires = Date.now() + 3600000; // 1 hour
         await user.save();
 
-        const verificationUrl = `${process.env.CLIENT_URL}/auth/verify-email?token=${token}`;
+        const verificationUrl = `${process.env.CLIENT_URL}/verify-email?token=${token}`;
         await resend.emails.send({
             from: 'AuroCore <noreply@aurocore.me>',
             to: user.email,
