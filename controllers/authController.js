@@ -22,14 +22,15 @@ exports.register = async (req, res) => {
         res.cookie("accessToken", token, {
             httpOnly: true,
             secure: true,
-            sameSite: 'lax', // Change from 'none' to 'lax'
-            path: '/', // Ensure cookie is available for all paths
+            sameSite: 'lax',
+            path: '/',
             maxAge: 15 * 60 * 1000
         });
-
-        console.log(token);
         await newUser.save();
-        res.status(201).json({message: 'User created'});
+        res.status(201).json({
+            message: 'User created',
+            token: token
+        });
     } catch(err) {
         res.status(500).json({message: 'Server error', error: err.message});
     }
@@ -46,7 +47,7 @@ exports.login = async (req, res) => {
         const valid = await bcrypt.compare(password, user.password);
         if(!valid) return res.status(401).json({message: 'Invalid credentials'});
         const accessToken = jwt.sign({ username: user.username, id: user._id}, KEY, {expiresIn: '15m'});
-
+        const sessionId = crypto.randomBytes(16).toString('hex');
         const refreshToken = jwt.sign({
             username: user.username, id: user._id
         },
@@ -54,6 +55,8 @@ exports.login = async (req, res) => {
         {expiresIn: rememberMe? '30d' : '1d'});
 
         user.refreshTokens.push(refreshToken);
+        user.sessionIds = user.sessionIds || [];
+        user.sessionIds.push({ id: sessionId, token: refreshToken });
         await user.save();
 
         res.cookie("accessToken", accessToken, {
@@ -64,29 +67,37 @@ exports.login = async (req, res) => {
             maxAge: 15 * 60 * 1000
         });
 
-        res.cookie("refreshToken", refreshToken, {
+        res.cookie("sessionId", sessionId, {
             httpOnly: true,
             secure: true,
             sameSite: 'none',
             domain: ".aurocore.me",
             maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000
         });
-        res.status(200).json({message: "Logged in successfully"});
+
+        res.status(200).json({message: "Logged in successfully", token: accessToken, sessionId: sessionId});
     } catch(err) {
         res.status(500).json({ message: 'Server error', error: err.message});
     }
 };
 
 exports.refreshToken = async (req, res) => {
-    const refreshToken = req.cookies.refreshToken;
-    if (!refreshToken) return res.status(401).json({ message: 'No refresh token'});
+    const sessionId = req.cookies.sessionId || req.body.sessionId;
+    if (!sessionId) return res.status(401).json({ message: 'No session ID'});
 
     try {
-        const user = await User.findOne({ refreshTokens: refreshToken});
-        if (!user) return res.status(403).json({ message: 'Invalid refresh token'});
-
+        const user = await User.findOne({ "sessionIds.id": sessionId });
+        if (!user) return res.status(403).json({ message: 'Invalid session ID'});
+        const sessionData = user.sessionIds.find(session => session.id === sessionId);
+        if (!sessionData) return res.status(403).json({ message: 'Session not found' });
+        const refreshToken = sessionData.token;
         jwt.verify(refreshToken, KEY, async(err, decoded) => {
-            if (err) return res.status(403).json({ message: 'Invalid refresh token'});
+            if (err) {
+                user.sessionIds = user.sessionIds.filter(session => session.id !== sessionId);
+                user.refreshTokens = user.refreshTokens.filter(token => token !== refreshToken);
+                await user.save();
+                return res.status(403).json({ message: 'Invalid session' });
+            }
             const newAccessToken = jwt.sign(
                 {username: decoded.username, id: decoded.id},
                 KEY,
@@ -101,7 +112,7 @@ exports.refreshToken = async (req, res) => {
                 maxAge: 15 * 60 * 1000
             });
 
-            res.json({message: "Access token refreshed"});
+            res.json({message: "Access token refreshed", token: newAccessToken});
         });
     } catch(err) {
         res.status(500).json({ message: 'Server error', error: err.message});
@@ -109,19 +120,23 @@ exports.refreshToken = async (req, res) => {
 };
 
 exports.logout = async (req, res) => {
-    const refreshToken = req.cookies.refreshToken;
-    if (!refreshToken) return res.sendStatus(204);
-
+    const sessionId = req.cookies.sessionId || req.body.sessionId;
+    if (!sessionId) return res.sendStatus(204);
     try {
-        const user = await User.findOne({ refreshTokens: refreshToken });
+        const user = await User.findOne({ "sessionIds.id": sessionId });
         if (user) {
-            user.refreshTokens = user.refreshTokens.filter(token => token !== refreshToken);
+            const sessionData = user.sessionIds.find(session => session.id === sessionId);
+            if (sessionData) {
+                const refreshToken = sessionData.token;
+                user.refreshTokens = user.refreshTokens.filter(token => token !== refreshToken);
+            }
+            user.sessionIds = user.sessionIds.filter(session => session.id !== sessionId);
             await user.save();
         }
-        res.clearCookie("refreshToken", {httpOnly: true, secure: true, sameSite: 'none', domain: ".aurocore.me"});
+        res.clearCookie("sessionId", {httpOnly: true, secure: true, sameSite: 'none', domain: ".aurocore.me"});
         res.clearCookie("accessToken", {httpOnly: true, secure: true, sameSite: 'none', domain: ".aurocore.me"});
         res.sendStatus(204);
     } catch(err) {
-        res.status(500).json({ message: 'Server error', error: err.message});
+        res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
