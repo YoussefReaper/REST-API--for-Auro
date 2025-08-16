@@ -8,7 +8,6 @@ const userController = require("../controllers/userController")
 const emailRequestLimiter = require("../middleware/rateLimit");
 const authenticateToken = require('../middleware/authMiddleware');
 const jwt = require("jsonwebtoken");
-import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 
 /**
  * @swagger
