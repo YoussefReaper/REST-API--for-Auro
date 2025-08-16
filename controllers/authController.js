@@ -44,6 +44,7 @@ exports.login = async (req, res) => {
         const user = await User.findOne({username});
         if(!user) return res.status(401).json({message:'Invalid credentials'});
         if (user.isVerified !== true) return res.status(402).json({message: 'Email not verified'});
+        if (user.isCompleted !== true) return res.status(403).json({message: 'Profile not completed'});
         const valid = await bcrypt.compare(password, user.password);
         if(!valid) return res.status(401).json({message: 'Invalid credentials'});
         const accessToken = jwt.sign({ username: user.username, id: user._id}, KEY, {expiresIn: '15m'});

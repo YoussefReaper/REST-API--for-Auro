@@ -99,6 +99,7 @@ const userSchema = new mongoose.Schema({
     sessionIds: [{ id: String, token: String }],
     coins: {type: Number, default: 0},
     friends: {type: Array, default: []},
+    isCompleted: {type: Boolean, default: false},
     friendRequests: {type: Array, default: []},
     profileAppearance: profileAppearanceSchema,
     aiProfileAppearance: aiProfileAppearanceSchema,

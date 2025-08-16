@@ -166,6 +166,10 @@ exports.updateProfile = async (req, res) => {
         user.aiDescription = aiDescription || user.aiDescription;
         user.aiPersonality = aiPersonality || user.aiPersonality;
         await user.save();
+        if (!user.isCompleted) {
+            user.isCompleted = true;
+            await user.save();
+        }
         res.status(201).json({message: 'Profile updated'});
     } catch(err) {
         res.status(500).json({message: 'server error', error: err.message});
