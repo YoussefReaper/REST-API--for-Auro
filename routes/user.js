@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/userController');
 const authenticateToken = require('../middleware/authMiddleware');
-const upload = require('../middleware/upload')
+const {uploadProfile, uploadBackground} = require('../middleware/upload')
 
 /**
  * @swagger
@@ -51,13 +51,21 @@ router.get('/profile', authenticateToken, userController.getProfile);
  *       500:
  *         description: Server error
  */
-router.patch('/customization', authenticateToken, userController.updateCustomization);
-
-router.patch('/profile', authenticateToken, upload.fields([
+router.patch('/customization', authenticateToken, uploadBackground.fields([
+    {name: 'backgrounds_desktop', maxCount: 1},
+    {name: 'backgrounds_mobile', maxCount: 1},
+    {name: 'chat_background', maxCount: 1},
+    {name: 'tracker_desktop_main', maxCount: 1},
+    {name: 'tracker_desktop_pause', maxCount: 1},
+    {name: 'tracker_mobile_main', maxCount: 1},
+    {name: 'tracker_mobile_pause', maxCount: 1}
+]), userController.updateCustomization);
+router.patch('/profile', authenticateToken, uploadProfile.fields([
     { name: 'profilePicture', maxCount: 1},
     { name: 'aiProfilePicture', maxCount: 1}
 ]), userController.updateProfile);
-
 router.patch('/subscription', authenticateToken, userController.updateSubscription);
+
+router.get('/customization', authenticateToken, userController.getCustomizations);
 
 module.exports = router;

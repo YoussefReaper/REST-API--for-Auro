@@ -76,14 +76,7 @@ exports.getProfile = async (req, res) => {
             aiPersonality: user.aiPersonality,
             aiDescription: user.aiDescription,
             subscription: user.subscription,
-            badHabits: user.badHabits,
-            goodHabits: user.goodHabits,
-            customization: user.customization,
             achievements: user.achievements,
-            chatHistories: user.chatHistories,
-            memories: user.memories,
-            tasks: user.tasks,
-            trackers: user.trackers
         });
     } catch(err) {
         res.status(500).json({message: 'server error', error: err.message});
@@ -92,15 +85,66 @@ exports.getProfile = async (req, res) => {
 
 exports.updateCustomization = async (req, res) => {
     try {
-        const user = await User.findById(req.user.id);
-        if(!user) return res.status(404).json({message: 'User not found'});
-        user.customization = {...user.customization.toObject(), ...req.body};
-        await user.save();
-        res.json({message: 'Customization updated'});
-    } catch(err) {
-        res.status(500).json({message: 'server error', error: err.message});
+        const allowedFields = [
+            'themeMode', 'colorPalette', 'backgrounds',
+            'trackerBackgrounds', 'chatAppearance',
+            'preferences', 'topbarTheme'
+        ];
+        const updates = {};
+        if (req.body.settings) {
+            let settings;
+            try {
+                settings = JSON.parse(req.body.settings);
+            } catch (err) {
+                return res.status(400).json({ message: 'Invalid JSON in settings' });
+            }
+
+            allowedFields.forEach(field => {
+                if (settings[field] !== undefined) {
+                    updates[`customization.${field}`] = settings[field];
+                }
+            });
+        }
+        if (req.files) {
+            if (req.files['backgrounds_desktop']) {
+                updates['customization.backgrounds.desktop'] = req.files['backgrounds_desktop'][0].path;
+            }
+            if (req.files['backgrounds_mobile']) {
+                updates['customization.backgrounds.mobile'] = req.files['backgrounds_mobile'][0].path;
+            }
+            if (req.files['chat_background']) {
+                updates['customization.chatAppearance.background'] = req.files['chat_background'][0].path;
+            }
+            if (req.files['tracker_desktop_main']) {
+                updates['customization.trackerBackgrounds.desktop_main'] = req.files['tracker_desktop_main'][0].path;
+            }
+            if (req.files['tracker_desktop_pause']) {
+                updates['customization.trackerBackgrounds.desktop_pause'] = req.files['tracker_desktop_pause'][0].path;
+            }
+            if (req.files['tracker_mobile_main']) {
+                updates['customization.trackerBackgrounds.mobile_main'] = req.files['tracker_mobile_main'][0].path;
+            }
+            if (req.files['tracker_mobile_pause']) {
+                updates['customization.trackerBackgrounds.mobile_pause'] = req.files['tracker_mobile_pause'][0].path;
+            }
+        }
+
+        const user = await User.findByIdAndUpdate(
+            req.user.id,
+            { $set: updates },
+            { new: true, runValidators: true }
+        );
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json({ message: 'Customization updated successfully', user });
+    } catch (err) {
+        res.status(500).json({ message: 'server error', error: err.message });
     }
 };
+
 
 exports.updateProfile = async (req, res) => {
     try {
@@ -135,6 +179,36 @@ exports.updateSubscription = async (req, res) => {
         user.subscription = req.body.subscription || user.subscription;
         await user.save();
         res.status(201).json({message: 'Subscription updated'});
+    } catch(err) {
+        res.status(500).json({message: 'server error', error: err.message});
+    }
+};
+
+exports.changeCoins = async (req,res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({message: 'User not found'});
+        user.coins += req.body.coins || 0;
+        await user.save();
+        res.status(201).json({message: 'Coins changed successfully'});
+    } catch(err) {
+        res.status(500).json({message: 'server error', error: err.message});
+    }
+};
+
+exports.getCustomizations = async (req,res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({message: 'User not found'});
+        res.json({
+            themeMode: user.customization.themeMode,
+            colorPalette: user.customization.colorPalette,
+            backgrounds: user.customization.backgrounds,
+            trackerBackgrounds: user.customization.trackerBackgrounds,
+            chatAppearance: user.customization.chatAppearance,
+            preferences: user.customization.preferences,
+            topbarTheme: user.customization.topbarTheme
+        });
     } catch(err) {
         res.status(500).json({message: 'server error', error: err.message});
     }

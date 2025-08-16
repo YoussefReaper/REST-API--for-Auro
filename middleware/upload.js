@@ -8,7 +8,7 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-const storage = new CloudinaryStorage({
+const profileStorage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: 'profile_pictures',
@@ -17,6 +17,20 @@ const storage = new CloudinaryStorage({
     }
 });
 
-const upload = multer({ storage: storage});
+const backgroundStorage = new CloudinaryStorage({
+    cloudinary,
+    params: async (req,file) => {
+        const isVideo = file.mimetype.startsWith('video/');
+        return {
+            folder: 'backgrounds',
+            allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'mp4', 'webm'],
+            resource_type: isVideo ? 'video' : 'image',
+            transformation: [{ width: 1920, height: 1080, crop: 'limit'}]
+        };
+    }
+});
 
-module.exports = upload;
+const uploadProfile = multer({ storage: profileStorage });
+const uploadBackground = multer({ storage: backgroundStorage });
+
+module.exports = { uploadProfile, uploadBackground };

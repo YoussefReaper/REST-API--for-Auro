@@ -7,7 +7,7 @@ const crypto = require("crypto");
 const userController = require("../controllers/userController")
 const emailRequestLimiter = require("../middleware/rateLimit");
 const authenticateToken = require('../middleware/authMiddleware');
-
+const jwt = require("jsonwebtoken");
 /**
  * @swagger
  * /auth/register:
@@ -73,37 +73,75 @@ router.post('/register', authController.register);
  */
 router.post('/login', authController.login);
 router.post("/forgot-password", emailRequestLimiter, forgotPassword);
-router.post("/reset-password/:token", emailRequestLimiter, resetPassword);
+router.post("/reset-password/:token", resetPassword);
 router.post("/forgot-username", emailRequestLimiter, forgotUsername);
 
 router.post('/send-verification-email', emailRequestLimiter, authenticateToken, userController.sendVerificationEmail);
 router.get('/verify-email', emailRequestLimiter,userController.verifyEmail);
-router.post("/logout", (req, res) => {
-  res.clearCookie("refreshToken");
-  return res.json({ message: "Logged out successfully" });
-});
-router.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
-router.get("/auth/google/callback", passport.authenticate("google", { failureRedirect: "/login" }), (req, res) => {
-    const token = generateJwt(req.user);
-    res.redirect(`${process.env.CLIENT_URL}/home?token=${token}`);
+router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+
+router.get("/google/callback", passport.authenticate("google", { failureRedirect: "/login" }), (req, res) => {
+    const {accessToken, refreshToken} = generateJwt(req.user);
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      maxAge: 15 * 60 * 1000
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    res.redirect(`${process.env.CLIENT_URL}/home`);
 });
 
-router.get("/auth/github", passport.authenticate("github", { scope: ["user:email"] }));
-router.get("/auth/github/callback", passport.authenticate("github", { failureRedirect: "/login" }), (req, res) => {
-    let email = profile.emails && profile.emails[0] ? profile.emails[0].value : null;
+router.get("/github", passport.authenticate("github", { scope: ["user:email"] }));
+router.get("/github/callback", passport.authenticate("github", { failureRedirect: "/login" }), (req, res) => {
+    let email = req.user.emails && req.user.emails[0] ? req.user.emails[0].value : null;
 
     if(!email) {
-        email = `github_${profile.id}@aurocore.com`;
+        email = `github_${req.user.id}@aurocore.com`;
     }
-    const token = generateJwt(req.user);
-    res.redirect(`${process.env.CLIENT_URL}/home?token=${token}`);
+    const {accessToken, refreshToken} = generateJwt(req.user);
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      maxAge: 15 * 60 * 1000
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    res.redirect(`${process.env.CLIENT_URL}/home`);
 });
 
-router.get("/auth/refresh", emailRequestLimiter, authController.refreshToken)
+router.get("/refresh", authController.refreshToken);
+router.post("/logout", emailRequestLimiter, authController.logout);
 
 function generateJwt(user) {
-    return jwt.sign({ id: user._id, username: user.username}, process.env.KEY, { expiresIn: "1h" });
+  const accessToken = jwt.sign(
+    { id: user._id, username: user.username },
+    process.env.KEY,
+    { expiresIn: "15m" }
+  );
+
+  const refreshToken = jwt.sign(
+    { id: user._id },
+    process.env.REFRESH_KEY,
+    { expiresIn: "7d" }
+  );
+
+  return { accessToken, refreshToken };
 }
 
 module.exports = router;

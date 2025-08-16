@@ -1,35 +1,81 @@
 const mongoose = require('mongoose');
 
-const chatHistorySchema = new mongoose.Schema({
-    chatId: String,
-    messages: [
-        {
-            sender: {type: String, enum: ['ai', 'user']},
-            text: String,
-            timestamp: { type: Date, default: Date.now}
-        }
-    ]
-});
-
 const achievementSchema = new mongoose.Schema({
     name: String,
     description: String,
     dateEarned: {type: Date, default: Date.now}
 });
 
+const profileAppearanceSchema = new mongoose.Schema({
+    avatarStyle: {type: String, default: 'default'},
+    theme: {type:String, default: 'default'},
+    tags: [{
+        tagId: {type: mongoose.Schema.Types.ObjectId, ref: 'Tag'},
+        acquiredAt: {type: Date, default: Date.now},
+        active: {type: Boolean, default: true}
+    }],
+    banner: {type:String, default: 'default_banner.jpg'},
+    portfolio: {type:String, default: ''},
+    description: {type:String, default: ''},
+    status: {type:String, default: 'Hey there!'},
+    socialLinks: {
+        linkedin: {type: String, default: ''},
+        github: {type: String, default: ''}
+    }
+});
+
+const aiProfileAppearanceSchema = new mongoose.Schema({
+    avatarStyle: {type: String, default: 'default_ai'},
+    style: {type: String, default: 'default'},
+    banner: {type: String, default: 'default_ai_banner.jpg'}
+});
+
 const customizationSchema = new mongoose.Schema({
-    colorPreset: { type: String, default: 'default'},
-    background: { type: String, default: 'default.jpg'},
-    chatBackground: { type: String, default: 'default.jpg'},
-    trackerBackground: { type: String, default: 'default.jpg'},
+    themeMode: {type: String, enum: ['light', 'dark', 'auto'], default: 'auto'},
+    colorPalette: {
+        light: {
+            primary: {type: String, default: '#4F46E5'},
+            secondary: {type: String, default: '#06B6D4'},
+            background: {type: String, default: '#FFFFFF'},
+            text: {type: String, default: '#000000'}
+        },
+        dark: {
+            primary: {type: String, default: '#6366F1'},
+            secondary: {type: String, default: '#22D3EE'},
+            background: {type: String, default: '#0F172A'},
+            text: {type: String, default: '#FFFFFF'}
+        }
+    },
+    backgrounds: {
+        desktop: {type: String, default: 'default.jpg'},
+        mobile: {type: String, default: 'default_mobile.jpg'}
+    },
+    trackerBackgrounds: {
+        desktop: {
+            main: {type: String, default: 'tracker_main.jpg'},
+            pause: {type: String, default: 'tracker_pause.jpg'}
+        },
+        mobile: {
+            main: {type: String, default: 'tracker_main_mobile.jpg'},
+            pause: {type: String, default: 'tracker_pause_mobile.jpg'}
+        }
+    },
+    chatAppearance: {
+        bubbleStyle: {type: String, enum: ['rounded', 'sharp'], default: 'rounded'},
+        bubbleColor: {type: String, default: '#F1F1F1'},
+        textColor: {type: String, default: '#000000'},
+        background: {type: String, default: 'default_chat.jpg'}
+    },
     preferences: {
         notifications: {type: Boolean, default: true},
-        sound: {type: Boolean, default: true},
+        sound: {type:Boolean, default: true},
         language: {type: String, default: 'en'}
     },
-    topbarThemesOwned: [String],
-    colorPresetOwned: [String],
-    stickersOwned: [String]
+    topbarTheme: {
+        style: {type: String, default: "default"},
+        text: {type: String, default: '#FFFFFF'},
+        color: {type: String, default: '#4379deff'}
+    }
 });
 
 const userSchema = new mongoose.Schema({
@@ -44,6 +90,12 @@ const userSchema = new mongoose.Schema({
     emailVerificationExpires: {type: Date},
     resetPasswordToken: { type: String },
     resetPasswordExpire: {type: Date},
+    refreshTokens: [String],
+    coins: {type: Number, default: 0},
+    friends: {type: Array, default: []},
+    friendRequests: {type: Array, default: []},
+    profileAppearance: profileAppearanceSchema,
+    aiProfileAppearance: aiProfileAppearanceSchema,
     profilePicture: { type: String, default: 'default.jpg' },
     profileDescription: { type: String, default: '' },
     aiName: { type: String, default: 'AI Assistant' },
@@ -51,14 +103,19 @@ const userSchema = new mongoose.Schema({
     aiPersonality: { type: String, default: '' },
     aiDescription: { type: String, default: '' },
     subscription: { type: String, default: 'free' },
-    badHabits: [String],
-    goodHabits: [String],
-    chatHistories: [chatHistorySchema],
+    habits: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Habit' }],
+    chatHistories: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ChatHistory' }],
     achievements: [achievementSchema],
     memories: [{type: mongoose.Schema.Types.ObjectId, ref: 'Memory'}],
     customization: customizationSchema,
     tasks: [{type: mongoose.Schema.Types.ObjectId, ref: 'Task'}],
-    trackers: [{type: mongoose.Schema.Types.ObjectId, ref: 'Tracker'}]
+    trackers: [{type: mongoose.Schema.Types.ObjectId, ref: 'Tracker'}],
+    notes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Note' }],
+    plans: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Plan' }],
+    milestones: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Milestone' }],
+    teams: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Team' }],
+    createdAt: { type: Date, default: Date.now },
+    lastSeenOnline: { type: Date, default: Date.now }
 }, {timestamps: true});
 
 module.exports = mongoose.model('User', userSchema);

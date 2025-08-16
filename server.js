@@ -41,8 +41,14 @@ const options = {
 const specs = swaggerJsdoc(options);
 
 const app = express();
+const cookieParser = require("cookie-parser");
+app.use(cookieParser());
+
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+}));
 app.use(session({
     secret: process.env.SESSION_SECRET || "aurocore-secret",
     resave: false,
