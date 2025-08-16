@@ -46,7 +46,7 @@ app.use(cookieParser());
 
 app.use(express.json());
 app.use(cors({
-    origin: process.env.CLIENT_URL,
+    origin: "http://127.0.0.1:5500",
     credentials: true,
 }));
 app.use(session({
