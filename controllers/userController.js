@@ -141,6 +141,7 @@ exports.updateCustomization = async (req, res) => {
 
         res.json({ message: 'Customization updated successfully', user });
     } catch (err) {
+        console.error(err);
         res.status(500).json({ message: 'server error', error: err.message });
     }
 };
