@@ -84,6 +84,25 @@ app.use('/milestones', require('./routes/milestones'));
 app.use('/notes', require('./routes/notes'));
 
 app.get('/health', (req, res) => res.json({ status: 'ok', time: Date.now()}));
+// test cookie setting
+app.get("/auth/test-set-cookie", (req, res) => {
+    res.cookie("testCookie", "hello_from_server", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        domain: ".aurocore.me",
+        maxAge: 5 * 60 * 1000 // 5 min
+    });
+    res.json({ message: "Test cookie has been set!" });
+});
+
+// test cookie reading
+app.get("/auth/test-get-cookie", (req, res) => {
+    console.log("Cookies from client:", req.cookies);
+    res.json({
+        cookies: req.cookies
+    });
+});
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
