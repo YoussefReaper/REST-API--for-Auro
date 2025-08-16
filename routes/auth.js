@@ -86,10 +86,10 @@ router.get("/google/callback", passport.authenticate("google", { failureRedirect
     console.log("Google User:", req.user);
     const {accessToken, refreshToken} = generateJwt(req.user);
     const sessionId = crypto.randomBytes(16).toString('hex');
-    user.refreshTokens.push(refreshToken);
-    user.sessionIds = user.sessionIds || [];
-    user.sessionIds.push({ id: sessionId, token: refreshToken });
-    await user.save();
+    req.user.refreshTokens.push(refreshToken);
+    req.user.sessionIds = req.user.sessionIds || [];
+    req.user.sessionIds.push({ id: sessionId, token: refreshToken });
+    await req.user.save();
     res.redirect(`${process.env.CLIENT_URL}/home?accessToken=${accessToken}&sessionId=${sessionId}`);
 });
 
@@ -102,10 +102,10 @@ router.get("/github/callback", passport.authenticate("github", { failureRedirect
     const { accessToken, refreshToken } = generateJwt(req.user);
     const sessionId = crypto.randomBytes(16).toString('hex');
     console.log("GitHub User:", req.user);
-    user.refreshTokens.push(refreshToken);
-    user.sessionIds = user.sessionIds || [];
-    user.sessionIds.push({ id: sessionId, token: refreshToken });
-    await user.save();
+    req.user.refreshTokens.push(refreshToken);
+    req.user.sessionIds = req.user.sessionIds || [];
+    req.user.sessionIds.push({ id: sessionId, token: refreshToken });
+    await req.user.save();
     res.redirect(
       `${process.env.CLIENT_URL}/home?accessToken=${accessToken}&sessionId=${sessionId}`
     );
