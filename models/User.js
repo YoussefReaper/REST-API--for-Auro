@@ -81,7 +81,12 @@ const customizationSchema = new mongoose.Schema({
 const userSchema = new mongoose.Schema({
     username: { type: String, unique: true, required: true },
     displayName: { type: String, default: '' },
-    password: { type: String, required: true },
+    password: {
+        type: String,
+        required: function () {
+            return !this.googleId;
+        }
+    },
     email: { type: String, unique: true, required: true },
     isVerified: { type: Boolean, default: false },
     googleId: { type: String },
