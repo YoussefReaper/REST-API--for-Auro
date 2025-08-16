@@ -19,7 +19,7 @@ passport.use(new GoogleStrategy({
         let user = await User.findOne({ googleId: profile.id});
         if (!user) {
             user=new User({
-                username: profile.displayName,
+                username: `google_${profile.id}`,
                 email: profile.emails[0].value,
                 googleId: profile.id,
                 isVerified: true
@@ -43,7 +43,7 @@ passport.use(new GitHubStrategy({
         let email = profile.emails && profile.emails[0] ? profile.emails[0].value : `github_${profile.id}@aurocore.com`;
         if (!user) {
             user = new User({
-                username: profile.username,
+                username: `github_${profile.id}`,
                 githubId: profile.id,
                 isVerified: true
             });
