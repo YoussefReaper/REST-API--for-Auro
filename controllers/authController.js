@@ -26,6 +26,7 @@ exports.register = async (req, res) => {
             domain: ".aurocore.me",
             maxAge: 15 * 60 * 1000
         });
+        console.log(res.cookies.accessToken);
         await newUser.save();
         res.status(201).json({message: 'User created'});
     } catch(err) {
