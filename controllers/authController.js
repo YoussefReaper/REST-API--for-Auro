@@ -22,7 +22,7 @@ exports.register = async (req, res) => {
         res.cookie("accessToken", token, {
             httpOnly: true,
             secure: true,
-            sameSite: 'strict',
+            sameSite: 'none',
             maxAge: 15 * 60 * 1000
         });
         await newUser.save();
@@ -56,14 +56,14 @@ exports.login = async (req, res) => {
         res.cookie("accessToken", accessToken, {
             httpOnly: true,
             secure: true,
-            sameSite: 'strict',
+            sameSite: 'none',
             maxAge: 15 * 60 * 1000
         });
 
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             secure: true,
-            sameSite: 'strict',
+            sameSite: 'none',
             maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000
         });
         res.status(200).json({message: "Logged in successfully"});
@@ -91,7 +91,7 @@ exports.refreshToken = async (req, res) => {
             res.cookie("accessToken", newAccessToken, {
                 httpOnly: true,
                 secure: true,
-                sameSite: 'strict',
+                sameSite: 'none',
                 maxAge: 15 * 60 * 1000
             });
 
