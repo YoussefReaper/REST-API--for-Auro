@@ -160,7 +160,7 @@ exports.updateProfile = async (req, res) => {
         if (req.files && req.files.aiProfilePicture) {
             user.aiProfilePicture = req.files.aiProfilePicture[0].path;
         }
-
+        if (await User.findOne({ username })) return res.status(400).json({message: 'Username already exists'});
         user.username = username || user.username;
         user.displayName = displayName || user.displayName;
         user.profileDescription = profileDescription || user.profileDescription;
