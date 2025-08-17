@@ -151,7 +151,7 @@ exports.updateProfile = async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({message: 'User not found'});
-        const { profileDescription, aiName, aiDescription, aiPersonality, displayName } = req.body;
+        const { profileDescription, aiName, aiDescription, aiPersonality, displayName, username } = req.body;
 
         if (req.files && req.files.profilePicture) {
             user.profilePicture = req.files.profilePicture[0].path;
@@ -161,6 +161,7 @@ exports.updateProfile = async (req, res) => {
             user.aiProfilePicture = req.files.aiProfilePicture[0].path;
         }
 
+        user.username = username || user.username;
         user.displayName = displayName || user.displayName;
         user.profileDescription = profileDescription || user.profileDescription;
         user.aiName = aiName || user.aiName;
