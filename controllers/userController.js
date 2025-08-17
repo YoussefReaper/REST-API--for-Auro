@@ -69,6 +69,7 @@ exports.getProfile = async (req, res) => {
             username: user.username,
             displayName: user.displayName,
             email: user.email,
+            isCompleted: user.isCompleted,
             profilePicture: user.profilePicture,
             profileDescription: user.profileDescription,
             aiName: user.aiName,
