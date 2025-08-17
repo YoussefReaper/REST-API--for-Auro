@@ -30,7 +30,7 @@ const backgroundStorage = new CloudinaryStorage({
     }
 });
 
-const bannerStroage = new CloudinaryStorage({
+const bannerStorage = new CloudinaryStorage({
     cloudinary,
     params: async (req,file) => {
         return {
