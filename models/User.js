@@ -113,7 +113,7 @@ const userSchema = new mongoose.Schema({
     chatHistories: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ChatHistory' }],
     achievements: [achievementSchema],
     memories: [{type: mongoose.Schema.Types.ObjectId, ref: 'Memory'}],
-    customization: {customizationSchema},
+    customization: { type: customizationSchema, default: () => ({}) },
     tasks: [{type: mongoose.Schema.Types.ObjectId, ref: 'Task'}],
     trackers: [{type: mongoose.Schema.Types.ObjectId, ref: 'Tracker'}],
     notes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Note' }],
