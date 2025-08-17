@@ -30,7 +30,19 @@ const backgroundStorage = new CloudinaryStorage({
     }
 });
 
+const bannerStroage = new CloudinaryStorage({
+    cloudinary,
+    params: async (req,file) => {
+        return {
+            folder: 'banners',
+            allowed_formats: ['jpg', 'jpeg', 'png', 'webp',],
+            transformation: [{ width: 600, height: 300, crop: 'limit'}]
+        };
+    }
+});
+
 const uploadProfile = multer({ storage: profileStorage });
 const uploadBackground = multer({ storage: backgroundStorage });
+const uploadBanner = multer({ storage: bannerStorage });
 
-module.exports = { uploadProfile, uploadBackground };
+module.exports = { uploadProfile, uploadBackground, uploadBanner };

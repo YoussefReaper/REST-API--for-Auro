@@ -219,3 +219,129 @@ exports.getCustomizations = async (req,res) => {
         res.status(500).json({message: 'server error', error: err.message});
     }
 };
+
+exports.updateColors = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({message: 'User not found'});
+        user.customization.colorPalette.light = req.body.colorPalette.light || user.customization.colorPalette.light;
+        user.customization.colorPalette.dark = req.body.colorPalette.dark || user.customization.colorPalette.dark;
+        await user.save();
+        res.status(201).json({message: 'Colors updated successfully'});
+    } catch(err) {
+        res.status(500).json({message: 'server error', error: err.message});
+    }
+}
+
+exports.updateBackgrounds = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({message: 'User not found'});
+        if (req.body.backgroundType === "Normal") {
+            if (req.body.backgroundDevice === "Desktop") {
+                user.customization.backgrounds.desktop = req.files.backgrounds_desktop[0].path || user.customization.backgrounds.desktop;
+            } else if (req.body.backgroundDevice === "Mobile") {
+                user.customization.backgrounds.mobile = req.files.backgrounds_mobile[0].path || user.customization.backgrounds.mobile;
+            }
+        } 
+        else if (req.body.backgroundType === "Tracker") {
+            if (req.body.backgroundDevice === "Desktop") {
+                user.customization.backgrounds.tracker.desktop.main = req.files.tracker_desktop_main[0].path || user.customization.backgrounds.tracker.desktop.main;
+                user.customization.backgrounds.tracker.desktop.pause = req.files.tracker_desktop_pause[0].path || user.customization.backgrounds.tracker.desktop.pause;
+            }
+            else if (req.body.backgroundDevice === "Mobile") {
+                user.customization.backgrounds.tracker.mobile.main = req.files.tracker_mobile_main[0].path || user.customization.backgrounds.tracker.mobile.main;
+                user.customization.backgrounds.tracker.mobile.pause = req.files.tracker_mobile_pause[0].path || user.customization.backgrounds.tracker.mobile.pause;
+            }
+        }
+        else if (req.body.backgroundType === "Chat") {
+            user.customization.chatAppearance.background = req.files.chat_background[0].path || user.customization.chatAppearance.background;
+        }
+        await user.save();
+        res.status(201).json({message: 'Backgrounds updated successfully'});
+    } catch(err) {
+        res.status(500).json({message: 'server error', error: err.message});
+    }
+}
+
+exports.updateTheme = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({message: 'User not found'});
+        user.customization.themeMode = req.body.themeMode || user.customization.themeMode;
+        await user.save();
+        res.status(201).json({message: 'Theme mode updated successfully'});
+    } catch(err) {
+        res.status(500).json({message: 'server error', error: err.message});
+    }
+}
+
+exports.updateTopbarTheme = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({message: 'User not found'});
+        user.customization.topbarTheme.style = req.body.style || user.customization.topbarTheme.style;
+        user.customization.topbarTheme.text = req.body.text || user.customization.topbarTheme.text;
+        user.customization.topbarTheme.color = req.body.color || user.customization.topbarTheme.color;
+        await user.save();
+        res.status(201).json({message: 'Topbar theme updated successfully'});
+    } catch(err) {
+        res.status(500).json({message: 'server error', error: err.message});
+    }
+}
+
+exports.updateAiProfileAppearance = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({message: 'User not found'});
+        user.aiProfileAppearance.avatarStyle = req.body.avatarStyle || user.aiProfileAppearance.avatarStyle;
+        user.aiProfileAppearance.style = req.body.style || user.aiProfileAppearance.style;
+        user.aiProfileAppearance.banner = req.files.aiBanner[0].path || user.aiProfileAppearance.banner;
+        await user.save();
+        res.status(201).json({message: 'AI Profile appearance updated successfully'});
+    } catch(err) {
+        res.status(500).json({message: 'server error', error: err.message});
+    }
+}
+
+exports.updateProfileAppearance = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({message: 'User not found'});
+        if (req.body.avatarStyle) {
+            user.profileAppearance.avatarStyle = req.body.avatarStyle;
+        }
+        if (req.body.theme) {
+            user.profileAppearance.theme = req.body.theme;
+        }
+        if (req.files.banner) {
+            user.profileAppearance.banner = req.files.banner[0].path || user.profileAppearance.banner;
+        }
+        if (req.body.description) {
+            user.profileAppearance.description = req.body.description;
+        }
+        if (req.body.status) {
+            user.profileAppearance.status = req.body.status;
+        }
+        if (req.body.socialLinks) {
+            user.profileAppearance.socialLinks.linkedin = req.body.socialLinks.linkedin || user.profileAppearance.socialLinks.linkedin;
+            user.profileAppearance.socialLinks.github = req.body.socialLinks.github || user.profileAppearance.socialLinks.github;
+        }
+        await user.save();
+        res.status(201).json({message: 'Profile appearance updated successfully'});
+    } catch(err) {
+        res.status(500).json({message: 'server error', error: err.message});
+    }
+}
+
+exports.updateProfileTags = async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) return res.status(404).json({message: 'User not found'});
+        user.profileAppearance.tags.push(req.body.tag);
+        await user.save();
+        res.status(201).json({message: 'Profile tags updated successfully'});
+    } catch(err) {
+        res.status(500).json({message: 'server error', error: err.message});
+    }
+}

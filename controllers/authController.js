@@ -90,7 +90,7 @@ exports.refreshToken = async (req, res) => {
         const user = await User.findOne({ "sessionIds.id": sessionId });
         if (!user) return res.status(403).json({ message: 'Invalid session ID'});
         const sessionData = user.sessionIds.find(session => session.id === sessionId);
-        if (!sessionData) return res.status(403).json({ message: 'Session not found' });
+        if (!sessionData) return res.status(402).json({ message: 'Session not found' });
         const refreshToken = sessionData.token;
         jwt.verify(refreshToken, KEY, async(err, decoded) => {
             if (err) {

@@ -15,9 +15,8 @@ const profileAppearanceSchema = new mongoose.Schema({
         active: {type: Boolean, default: true}
     }],
     banner: {type:String, default: 'default_banner.jpg'},
-    portfolio: {type:String, default: ''},
     description: {type:String, default: ''},
-    status: {type:String, default: 'Hey there!'},
+    status: {type:String, default: ''},
     socialLinks: {
         linkedin: {type: String, default: ''},
         github: {type: String, default: ''}
