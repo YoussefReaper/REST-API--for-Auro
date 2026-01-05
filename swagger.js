@@ -11,8 +11,22 @@ const options = {
         },
         servers: [
             {
-                url: "https://new-rest.vercel.app/api",
-                description: "Development server"
+                url: "/api",
+                description: "API base"
+            }
+        ],
+        components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: "http",
+                    scheme: "bearer",
+                    bearerFormat: "JWT"
+                }
+            }
+        },
+        security: [
+            {
+                bearerAuth: []
             }
         ]
     },
