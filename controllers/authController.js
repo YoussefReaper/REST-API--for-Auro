@@ -7,17 +7,24 @@ const KEY = process.env.KEY;
 
 exports.register = async (req, res) => {
     const {username, password, email} = req.body;
-    if(!username || !password || !email) return res.status(400).json({ message: 'Username, password and email are required'});
+    if(!username || !password) return res.status(400).json({ message: 'Username and password are required'});
 
     try {
         const existing = await User.findOne({ username });
         if (existing) return res.status(401).json({ message: 'Username already taken'});
-        const existingEmail = await User.findOne({ email });
-        if (existingEmail) return res.status(401).json({ message: 'Email already registered'});
-        const verificationToken = crypto.randomBytes(32).toString('hex');
+        if (email) {
+            const existingEmail = await User.findOne({ email });
+            if (existingEmail) return res.status(401).json({ message: 'Email already registered'});
+        }
         const hashed = await bcrypt.hash(password, 10);
-        const newUser = new User({ username, password: hashed, email, emailVerificationToken: verificationToken, customization: {}});
-        newUser.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000;
+        const newUser = new User({
+            username,
+            password: hashed,
+            ...(email ? { email } : {}),
+            isVerified: true,
+            isCompleted: true,
+            customization: {}
+        });
         const token = jwt.sign({ username: newUser.username, id: newUser._id}, KEY, {expiresIn: '15m'});
         res.cookie("accessToken", token, {
             httpOnly: true,
@@ -43,8 +50,6 @@ exports.login = async (req, res) => {
     try {
         const user = await User.findOne({username});
         if(!user) return res.status(401).json({message:'Invalid credentials'});
-        if (user.isVerified !== true) return res.status(402).json({message: 'Email not verified'});
-        if (user.isCompleted !== true) return res.status(403).json({message: 'Profile not completed'});
         const valid = await bcrypt.compare(password, user.password);
         if(!valid) return res.status(401).json({message: 'Invalid credentials'});
         const accessToken = jwt.sign({ username: user.username, id: user._id}, KEY, {expiresIn: '15m'});

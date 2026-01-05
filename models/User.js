@@ -88,8 +88,11 @@ const userSchema = new mongoose.Schema({
             return !this.googleId && !this.githubId;
         }
     },
-    email: { type: String, unique: true, required: true },
-    isVerified: { type: Boolean, default: false },
+    // Optional: local auth should require only username/password.
+    // NOTE: if your MongoDB already has a non-sparse unique index on `email`,
+    // you'll need to drop/recreate it as sparse/partial to allow multiple users without email.
+    email: { type: String, unique: true, sparse: true },
+    isVerified: { type: Boolean, default: true },
     emailVerificationToken: { type: String },
     emailVerificationExpires: {type: Date},
     resetPasswordToken: { type: String },
@@ -98,7 +101,8 @@ const userSchema = new mongoose.Schema({
     sessionIds: [{ id: String, token: String }],
     coins: {type: Number, default: 0},
     friends: {type: Array, default: []},
-    isCompleted: {type: Boolean, default: false, required: true},
+    // Keep field for backward compatibility, but don't require it for auth.
+    isCompleted: {type: Boolean, default: true},
     friendRequests: {type: Array, default: []},
     profileAppearance: profileAppearanceSchema,
     aiProfileAppearance: aiProfileAppearanceSchema,

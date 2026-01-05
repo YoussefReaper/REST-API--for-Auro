@@ -9,6 +9,8 @@ const trackerController = require('../controllers/trackerController');
  *   post:
  *     summary: Log a new entry
  *     tags: [Tracker]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -16,15 +18,18 @@ const trackerController = require('../controllers/trackerController');
  *           schema:
  *             type: object
  *             properties:
- *               userId:
+ *               date:
  *                 type: string
- *               activity:
- *                 type: string
- *               duration:
- *                 type: integer
+ *                 format: date-time
+ *               trackedHours:
+ *                 type: number
+ *               completedTasksCount:
+ *                 type: number
  *     responses:
  *       201:
  *         description: Entry created
+ *       401:
+ *         description: Unauthorized
  *       500:
  *         description: Server error
  */
@@ -36,9 +41,13 @@ router.post('/', authenticateToken, trackerController.logEntry);
  *   get:
  *     summary: Get all tracking entries
  *     tags: [Tracker]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of tracking entries
+ *       401:
+ *         description: Unauthorized
  *       500:
  *         description: Server error
  */

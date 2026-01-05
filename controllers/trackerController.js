@@ -6,10 +6,15 @@ exports.logEntry = async (req, res) => {
     const day = date ? new Date(date) : new Date();
     const dayStart = new Date(day.getFullYear(), day.getMonth(), day.getDate());
     try {
-        let tracker = await Tracker.findOne({ userId: req.user.id});
+        const userId = req.user?.id || req.user?._id;
+        if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+
+        let tracker = await Tracker.findOne({ userId });
         if (!tracker) {
-            tracker = new Tracker({ userId: req.user.id, entries: []});
+            tracker = new Tracker({ userId, entries: []});
         }
+
+        if (!Array.isArray(tracker.entries)) tracker.entries = [];
 
         const idx = tracker.entries.findIndex(e => {
             const eDate = new Date(e.date);
@@ -29,7 +34,7 @@ exports.logEntry = async (req, res) => {
             });
         }
         await tracker.save();
-        res.json({ message: 'Tracker entry saved', tracker});
+        res.status(201).json({ message: 'Tracker entry saved', tracker});
     } catch(err) {
         res.status(500).json({ message: 'Server error', error: err.message});
     }
@@ -37,7 +42,10 @@ exports.logEntry = async (req, res) => {
 
 exports.getTracker = async (req, res) => {
     try {
-        const tracker = await Tracker.findOne({userId: req.user.id});
+        const userId = req.user?.id || req.user?._id;
+        if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+
+        const tracker = await Tracker.findOne({userId});
         if (!tracker) return res.json({ entries: []});
         res.json(tracker);
     } catch (err) {

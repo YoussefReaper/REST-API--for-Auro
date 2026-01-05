@@ -10,12 +10,15 @@ const authenticateToken = require('../middleware/authMiddleware');
  *   post:
  *     summary: Create a new note
  *     tags: [Notes]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
+ *             required: [title, content]
  *             properties:
  *               title:
  *                 type: string
@@ -24,6 +27,10 @@ const authenticateToken = require('../middleware/authMiddleware');
  *     responses:
  *       201:
  *         description: Note created
+ *       400:
+ *         description: title and content are required
+ *       401:
+ *         description: Unauthorized
  *       500:
  *         description: Server error
  */
@@ -35,9 +42,13 @@ router.post('/', authenticateToken, noteController.createNote);
  *   get:
  *     summary: Get all notes
  *     tags: [Notes]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of notes
+ *       401:
+ *         description: Unauthorized
  *       500:
  *         description: Server error
  */
@@ -49,6 +60,8 @@ router.get('/', authenticateToken, noteController.getNotes);
  *   get:
  *     summary: Get a note by ID
  *     tags: [Notes]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -57,6 +70,8 @@ router.get('/', authenticateToken, noteController.getNotes);
  *     responses:
  *       200:
  *         description: Note's info
+ *       401:
+ *         description: Unauthorized
  *       404:
  *         description: Note not found
  *       500:
@@ -70,6 +85,8 @@ router.get('/:id', authenticateToken, noteController.getNoteById);
  *   put:
  *     summary: Update a note by ID
  *     tags: [Notes]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -89,6 +106,8 @@ router.get('/:id', authenticateToken, noteController.getNoteById);
  *     responses:
  *       200:
  *         description: Note's info
+ *       401:
+ *         description: Unauthorized
  *       404:
  *         description: Note not found
  *       500:
@@ -102,6 +121,8 @@ router.put('/:id', authenticateToken, noteController.updateNote);
  *   delete:
  *     summary: Delete a note by ID
  *     tags: [Notes]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
@@ -110,6 +131,8 @@ router.put('/:id', authenticateToken, noteController.updateNote);
  *     responses:
  *       200:
  *         description: Note deleted
+ *       401:
+ *         description: Unauthorized
  *       404:
  *         description: Note not found
  *       500:

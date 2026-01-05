@@ -17,6 +17,8 @@ const taskController = require('../controllers/taskController');
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - title
  *             properties:
  *               title:
  *                 type: string
@@ -28,6 +30,8 @@ const taskController = require('../controllers/taskController');
  *     responses:
  *       201:
  *         description: Task created
+ *       400:
+ *         description: Validation error
  *       401:
  *         description: Unauthorized
  *       500:
@@ -83,6 +87,8 @@ router.get('/', authenticateToken, taskController.getTasks);
  *     responses:
  *       200:
  *         description: Task's info
+ *       400:
+ *         description: Validation error
  *       401:
  *         description: Unauthorized
  *       404:
@@ -108,6 +114,8 @@ router.put('/:id', authenticateToken, taskController.updateTask);
  *     responses:
  *       200:
  *         description: Task deleted
+ *       400:
+ *         description: Validation error
  *       401:
  *         description: Unauthorized
  *       404:

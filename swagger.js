@@ -8,14 +8,14 @@ const options = {
             title: "Auro API",
             version: "1.0.0",
             description: "API documentation for the Auro project"
-        }
+        },
+        servers: [
+            {
+                url: "http://localhost:3000/api",
+                description: "Development server"
+            }
+        ]
     },
-    servers: [
-        {
-            url: "http://localhost:3000/api",
-            description: "Development server"
-        }
-    ],
     apis: ["./routes/*.js"]
 };
 

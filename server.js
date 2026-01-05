@@ -16,6 +16,12 @@ const options = {
             version: "1.0.0",
             description: "API documentation for the Auro project"
         },
+        servers: [
+            {
+                url: "http://localhost:3000/api",
+                description: "Development server"
+            }
+        ],
         components: {
             securitySchemes: {
                 bearerAuth: {
@@ -31,12 +37,6 @@ const options = {
             }
         ]
     },
-    servers: [
-        {
-            url: "http://localhost:3000/api",
-            description: "Development server"
-        }
-    ],
     apis: ["./routes/*.js"]
 };
 const specs = swaggerJsdoc(options);
@@ -72,19 +72,27 @@ if (!MONGO_URI) {
 connectDB(MONGO_URI);
 
 
-app.use('/auth', require('./routes/auth'));
+app.use('/api/auth', require('./routes/auth'));
 
-app.use('/journals', require('./routes/journal'));
-app.use('/plans', require('./routes/plan'));
-app.use('/user', require('./routes/user'));
-app.use('/habits', require('./routes/habits'));
-app.use('/tasks', require('./routes/tasks'));
-app.use('/tracker', require('./routes/tracker'));
-app.use('/memory', require('./routes/memory'));
-app.use('/milestones', require('./routes/milestones'));
-app.use('/notes', require('./routes/notes'));
+app.use('/api/journals', require('./routes/journal'));
+app.use('/api/plans', require('./routes/plan'));
+app.use('/api/user', require('./routes/user'));
+app.use('/api/habits', require('./routes/habits'));
+app.use('/api/tasks', require('./routes/tasks'));
+app.use('/api/tracker', require('./routes/tracker'));
+app.use('/api/memories', require('./routes/memory'));
+app.use('/api/milestones', require('./routes/milestones'));
+app.use('/api/notes', require('./routes/notes'));
 
-app.get('/health', (req, res) => res.json({ status: 'ok', time: Date.now()}));
-app.listen(PORT, () => {
+app.get('/api/health', (req, res) => res.json({ status: 'ok', time: Date.now()}));
+const server = app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+});
+
+server.on('error', (err) => {
+    if (err && err.code === 'EADDRINUSE') {
+        console.error(`Port ${PORT} is already in use. Stop the other process or set PORT to a different value.`);
+        process.exit(1);
+    }
+    throw err;
 });

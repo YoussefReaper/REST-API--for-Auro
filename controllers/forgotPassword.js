@@ -24,7 +24,7 @@ exports.forgotPassword = async (req, res) => {
 
         res.json({ message: "Reset link sent to email"});
     } catch(err) {
-        res.status(500).json({message: error.message});
+        res.status(500).json({message: err.message});
     }
 };
 
@@ -64,6 +64,8 @@ exports.forgotUsername = async (req, res) => {
             "Your Username",
             `Your username is: ${user.username}`
         );
+
+        res.json({ message: "Username sent to email" });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

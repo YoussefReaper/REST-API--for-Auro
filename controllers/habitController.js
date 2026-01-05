@@ -1,56 +1,83 @@
 const User = require('../models/User');
+const Habit = require('../models/Habit');
 
 exports.addHabit = async (req, res) => {
-    const {type,habit} = req.body;
-    if(!type||!habit) return res.status(400).json({message: 'Type and habit are required'});
-    try{
-        const user= await User.findById(req.user.id);
-        if(!user) return res.status(404).json({message:'User not found'});
-        if(type === 'good'){
-            if (!user.goodHabits.includes(habit))  user.goodHabits.push(habit);
-        } else if(type === 'bad'){
-            if (!user.badHabits.includes(habit))  user.badHabits.push(habit);
+    try {
+        const userId = req.user?.id || req.user?._id;
+        if (!userId) return res.status(401).json({ message: 'Unauthorized' });
+
+        const { type, habit, name, description, frequency, goal } = req.body;
+        const habitName = name || habit;
+
+        if (!type || !habitName) {
+            return res.status(400).json({ message: 'type and habit (or name) are required' });
         }
+
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ message: 'User not found' });
+
+        const habitDoc = new Habit({
+            userId,
+            name: habitName,
+            type,
+            description,
+            frequency,
+            goal
+        });
+        await habitDoc.save();
+
+        user.habits = user.habits || [];
+        user.habits.push(habitDoc._id);
         await user.save();
-        res.status(201).json({ message: 'Habit added', goodHabits: user.goodHabits, badHabits: user.badHabits});
-    } catch(err) {
-        res.status(500).json({message: 'Server error', error: err.message});
+
+        res.status(201).json(habitDoc);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
 
 exports.removeHabit = async (req, res) => {
-    const {type,habit} = req.body;
-    if(!type||!habit) return res.status(400).json({message: 'Type and habit are required'});
+    try {
+        const userId = req.user?.id || req.user?._id;
+        if (!userId) return res.status(401).json({ message: 'Unauthorized' });
 
-    try{
-        const user = await User.findById(req.user.id);
-        if (!user) return res.status(404).json({message: 'User not found'});
+        const { id, type, habit, name } = req.body;
+        let habitDoc = null;
 
-        if(type === 'good') {
-            user.goodHabits = user.goodHabits.filter(h => h !== habit);
-        } else if(type === 'bad') {
-            user.badHabits = user.badHabits.filter(h => h !== habit);
+        if (id) {
+            habitDoc = await Habit.findOne({ _id: id, userId });
         } else {
-            return res.status(400).json({message: 'Invalid type, must be "good" or "bad"'});
+            const habitName = name || habit;
+            if (!type || !habitName) {
+                return res
+                    .status(400)
+                    .json({ message: 'Provide id, or provide type and habit (or name)' });
+            }
+            habitDoc = await Habit.findOne({ userId, type, name: habitName });
         }
 
-        await user.save();
-        res.status(204).json({ message: 'Habit removed', goodHabits: user.goodHabits, badHabits: user.badHabits});
-    } catch(err) {
-        res.status(500).json({message: 'Server error', error: err.message});
+        if (!habitDoc) return res.status(404).json({ message: 'Habit not found' });
+
+        await Habit.deleteOne({ _id: habitDoc._id, userId });
+        await User.updateOne({ _id: userId }, { $pull: { habits: habitDoc._id } });
+
+        res.status(200).json({ message: 'Habit removed successfully' });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
 
 exports.getHabits = async (req, res) => {
-    const {type} = req.query;
     try {
-        const user = await User.findById(req.user.id).select('goodHabits badHabits');
-        if(!user) return res.status(404).json({message:'User not found'});
+        const userId = req.user?.id || req.user?._id;
+        if (!userId) return res.status(401).json({ message: 'Unauthorized' });
 
-        if (type==='good') return res.status(200).json(user.goodHabits);
-        if (type==='bad') return res.status(200).json(user.badHabits);
-        return res.status(200).json({ goodHabits: user.goodHabits, badHabits: user.badHabits});
-    } catch(err) {
-        res.status(500).json({message: 'Server error', error: err.message});
+        const filter = { userId };
+        if (req.query?.type) filter.type = req.query.type;
+
+        const habits = await Habit.find(filter).sort({ createdAt: -1 });
+        res.status(200).json(habits);
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', error: err.message });
     }
 };

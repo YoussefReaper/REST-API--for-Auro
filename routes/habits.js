@@ -54,18 +54,20 @@ router.post('/', authenticateToken, habitController.addHabit);
  *           schema:
  *             type: object
  *             properties:
+ *               id:
+ *                 type: string
  *               type:
  *                 type: string
  *                 enum: [good, bad]
  *               habit:
  *                 type: string
  *     responses:
- *       204:
+ *       200:
  *         description: Habit removed
  *       401:
  *         description: Unauthorized
  *       404:
- *         description: Invalid type, must be "good" or "bad"
+ *         description: Habit not found
  *       500:
  *         description: Server error
  */

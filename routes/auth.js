@@ -22,6 +22,7 @@ const jwt = require("jsonwebtoken");
  *         application/json:
  *           schema:
  *             type: object
+ *             required: [username, password]
  *             properties:
  *               username:
  *                 type: string
@@ -29,6 +30,9 @@ const jwt = require("jsonwebtoken");
  *               password:
  *                 type: string
  *                 format: password
+ *               email:
+ *                 type: string
+ *                 description: Optional
  *     responses:
  *       201:
  *         description: User created
@@ -77,8 +81,6 @@ router.post("/forgot-password", emailRequestLimiter, forgotPassword);
 router.post("/reset-password/:token", resetPassword);
 router.post("/forgot-username", emailRequestLimiter, forgotUsername);
 
-router.post('/send-verification-email', emailRequestLimiter, authenticateToken, userController.sendVerificationEmail);
-router.get('/verify-email', emailRequestLimiter,userController.verifyEmail);
 
 router.get("/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 
@@ -90,16 +92,9 @@ router.get("/google/callback", passport.authenticate("google", { failureRedirect
     req.user.sessionIds = req.user.sessionIds || [];
     req.user.sessionIds.push({ id: sessionId, token: refreshToken });
     await req.user.save();
-    if (!req.user.isCompleted) {
-      res.redirect(
-        `${process.env.CLIENT_URL}/complete-profile?accessToken=${accessToken}&sessionId=${sessionId}`
-      );
-    }
-    else {
-        res.redirect(
-          `${process.env.CLIENT_URL}/home?accessToken=${accessToken}&sessionId=${sessionId}`
-        );
-    }
+    res.redirect(
+      `${process.env.CLIENT_URL}/home?accessToken=${accessToken}&sessionId=${sessionId}`
+    );
 });
 
 router.get("/github", passport.authenticate("github", { scope: ["user:email"] }));
@@ -115,16 +110,9 @@ router.get("/github/callback", passport.authenticate("github", { failureRedirect
     req.user.sessionIds = req.user.sessionIds || [];
     req.user.sessionIds.push({ id: sessionId, token: refreshToken });
     await req.user.save();
-    if (!req.user.isCompleted) {
-      res.redirect(
-        `${process.env.CLIENT_URL}/complete-profile?accessToken=${accessToken}&sessionId=${sessionId}`
-      );
-    }
-    else {
-        res.redirect(
-          `${process.env.CLIENT_URL}/home?accessToken=${accessToken}&sessionId=${sessionId}`
-        );
-    }
+    res.redirect(
+      `${process.env.CLIENT_URL}/home?accessToken=${accessToken}&sessionId=${sessionId}`
+    );
 });
 
 router.post("/refresh", authController.refreshToken);
